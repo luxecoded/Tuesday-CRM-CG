@@ -78,7 +78,6 @@ export default function Calendar() {
   const isDesktop = window.innerWidth >= 1024
 
   const handleDayClick = (key) => {
-    if (!tableExists) return
     setSelected({ title: '', date: key, endDate: '', color: '#6366f1', notes: '' })
   }
 
@@ -88,14 +87,22 @@ export default function Calendar() {
   }
 
   const handleSave = async (data) => {
-    if (data.id) await updateEvent(data)
-    else await addEvent(data)
-    setSelected(null)
+    try {
+      if (data.id) await updateEvent(data)
+      else await addEvent(data)
+      setSelected(null)
+    } catch {
+      alert('Could not save event — run supabase-setup.sql in your Supabase SQL editor first.')
+    }
   }
 
   const handleDelete = async (id) => {
-    await deleteEvent(id)
-    setSelected(null)
+    try {
+      await deleteEvent(id)
+      setSelected(null)
+    } catch {
+      alert('Could not delete event.')
+    }
   }
 
   return (
@@ -110,13 +117,6 @@ export default function Calendar() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} />
-            {tableExists && (
-              <button
-                onClick={() => setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' })}
-                className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors">
-                + Event
-              </button>
-            )}
           </div>
         </div>
 
@@ -200,7 +200,7 @@ export default function Calendar() {
         </div>
       </div>
 
-      {selectedEvent !== null && tableExists && (
+      {selectedEvent !== null && (
         <EventDrawer
           event={selectedEvent}
           onClose={() => setSelected(null)}
@@ -209,6 +209,13 @@ export default function Calendar() {
           isDesktop={isDesktop}
         />
       )}
+
+      {/* Floating action button */}
+      <button
+        onClick={() => setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' })}
+        className="fixed bottom-20 right-5 lg:bottom-8 lg:right-8 w-14 h-14 rounded-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white text-3xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50 transition-all z-30">
+        +
+      </button>
     </div>
   )
 }
