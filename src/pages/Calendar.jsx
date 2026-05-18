@@ -143,17 +143,16 @@ export default function Calendar() {
         </div>
 
         {/* Calendar */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 transition-colors pb-24 lg:pb-6 px-4 lg:px-8 py-4">
-          <div className="max-w-5xl mx-auto rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-800 transition-colors pb-24 lg:pb-0">
           {/* Day headers */}
-          <div className="grid grid-cols-7 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+          <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             {DAY_NAMES.map(d => (
               <div key={d} className="py-2 text-center text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">{d}</div>
             ))}
           </div>
 
-          {/* Day cells */}
-          <div className="grid grid-cols-7">
+          {/* Day cells — fills remaining height, rows stretch equally */}
+          <div className="flex-1 grid grid-cols-7" style={{ gridTemplateRows: `repeat(${calDays.length / 7}, 1fr)` }}>
             {calDays.map((date, idx) => {
               const key            = dateKey(date)
               const isCurrentMonth = date.getMonth() === month
@@ -165,8 +164,8 @@ export default function Calendar() {
               return (
                 <div key={idx}
                   onClick={() => handleDayClick(key)}
-                  className={`min-h-[80px] border-b border-r border-gray-200 dark:border-gray-700/50 p-1.5 cursor-pointer transition-colors
-                    ${isCurrentMonth ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/60 dark:bg-gray-900/60'}
+                  className={`border-b border-r border-gray-200 dark:border-gray-700/50 p-1.5 cursor-pointer transition-colors overflow-hidden
+                    ${isCurrentMonth ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900/60'}
                     hover:bg-indigo-50 dark:hover:bg-indigo-900/20`}>
 
                   <div className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1 flex-shrink-0
@@ -197,7 +196,6 @@ export default function Calendar() {
                 </div>
               )
             })}
-          </div>
           </div>
         </div>
       </div>
