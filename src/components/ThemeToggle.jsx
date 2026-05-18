@@ -30,12 +30,12 @@ export default function ThemeToggle({ theme, setTheme }) {
   const moonActive = isDark  || autoActive === 'dark'
 
   return (
-    <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 gap-0.5 relative">
+    <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-full p-0.5 gap-0.5 relative">
       {/* Sun */}
       <button
         onClick={() => handleClick('light')}
         title="Light (double-click for Auto)"
-        className={`relative w-8 h-8 flex items-center justify-center rounded-md text-base transition-all
+        className={`relative w-8 h-8 flex items-center justify-center rounded-full text-base transition-all
           ${sunActive
             ? 'bg-white dark:bg-gray-600 shadow-sm text-amber-500'
             : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
@@ -51,7 +51,7 @@ export default function ThemeToggle({ theme, setTheme }) {
       <button
         onClick={() => handleClick('dark')}
         title="Dark (double-click for Auto)"
-        className={`relative w-8 h-8 flex items-center justify-center rounded-md text-base transition-all
+        className={`relative w-8 h-8 flex items-center justify-center rounded-full text-base transition-all
           ${moonActive
             ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-500'
             : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'

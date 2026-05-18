@@ -114,7 +114,7 @@ export default function Pipeline() {
           <input
             type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="🔍  Search deals…"
-            className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+            className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
           />
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {['All', ...STAGE_ORDER].map(s => (

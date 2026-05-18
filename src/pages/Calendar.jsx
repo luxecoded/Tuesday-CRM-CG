@@ -119,9 +119,9 @@ export default function Calendar() {
 
         {/* Month nav + legend */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-2 flex items-center gap-2 flex-shrink-0 transition-colors">
-          <button onClick={prevMonth} className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg leading-none transition-colors">‹</button>
-          <button onClick={goToday}   className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg transition-colors">Today</button>
-          <button onClick={nextMonth} className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg leading-none transition-colors">›</button>
+          <button onClick={prevMonth} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg leading-none transition-colors">‹</button>
+          <button onClick={goToday}   className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-full transition-colors">Today</button>
+          <button onClick={nextMonth} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg leading-none transition-colors">›</button>
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 ml-1">{MONTH_NAMES[month]} {year}</span>
           <div className="ml-auto hidden sm:flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
