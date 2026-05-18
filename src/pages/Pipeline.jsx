@@ -96,7 +96,7 @@ export default function Pipeline() {
                   ${viewMode === 'card'
                     ? 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm'
                     : 'text-gray-500 dark:text-gray-400'}`}>
-                ⊞ Cards
+                ⊞ Grid
               </button>
               <button onClick={() => setView('list')}
                 className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
