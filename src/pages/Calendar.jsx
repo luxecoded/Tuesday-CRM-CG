@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useDeals } from '../hooks/useDeals'
 import { useEvents } from '../hooks/useEvents'
 import EventDrawer from '../components/EventDrawer'
+import EventDetailPanel from '../components/EventDetailPanel'
 import ThemeToggle from '../components/ThemeToggle'
 import { useThemeContext } from '../context/ThemeContext'
 
@@ -65,7 +66,8 @@ export default function Calendar() {
 
   const [view, setView]              = useState('month')
   const [current, setCurrent]        = useState(new Date(today.getFullYear(), today.getMonth(), 1))
-  const [selectedEvent, setSelected] = useState(null)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [selectedEvent, setSelected]    = useState(null)
 
   const year  = current.getFullYear()
   const month = current.getMonth()
@@ -106,9 +108,9 @@ export default function Calendar() {
     const map = {}
     const add = (key, item) => { if (!map[key]) map[key] = []; map[key].push(item) }
     for (const deal of deals) {
-      if (deal.quoteSent)    add(deal.quoteSent,    { type: 'quote',   label: deal.deal || deal.company, color: '#f59e0b', id: `q-${deal.id}` })
-      if (deal.surveyDate)   add(deal.surveyDate,   { type: 'survey',  label: deal.deal || deal.company, color: '#a855f7', id: `s-${deal.id}` })
-      if (deal.installStart) add(deal.installStart, { type: 'install', label: deal.deal || deal.company, color: '#10b981', id: `i-${deal.id}` })
+      if (deal.quoteSent)    add(deal.quoteSent,    { type: 'quote',   label: deal.deal || deal.company, color: '#f59e0b', id: `q-${deal.id}`, deal })
+      if (deal.surveyDate)   add(deal.surveyDate,   { type: 'survey',  label: deal.deal || deal.company, color: '#a855f7', id: `s-${deal.id}`, deal })
+      if (deal.installStart) add(deal.installStart, { type: 'install', label: deal.deal || deal.company, color: '#10b981', id: `i-${deal.id}`, deal })
     }
     for (const ev of events) {
       if (ev.date) add(ev.date, { type: 'event', label: ev.title, color: ev.color, id: `e-${ev.id}`, event: ev })
@@ -118,8 +120,9 @@ export default function Calendar() {
 
   const isDesktop = window.innerWidth >= 1024
 
-  const handleDayClick    = (key)    => setSelected({ title: '', date: key, endDate: '', color: '#6366f1', notes: '' })
-  const handleItemClick   = (e, item) => { e.stopPropagation(); if (item.event) setSelected(item.event) }
+  const handleDayClick  = (key) => { setSelectedItem(null); setSelected({ title: '', date: key, endDate: '', color: '#6366f1', notes: '' }) }
+  const handleItemClick = (e, item) => { e.stopPropagation(); setSelected(null); setSelectedItem(item) }
+  const handleEditFromPanel = () => { if (selectedItem?.event) { setSelected(selectedItem.event); setSelectedItem(null) } }
   const handleSave = async (data) => {
     try {
       if (data.id) await updateEvent(data); else await addEvent(data)
@@ -265,6 +268,15 @@ export default function Calendar() {
         )}
       </div>
 
+      {selectedItem !== null && (
+        <EventDetailPanel
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onEdit={handleEditFromPanel}
+          isDesktop={isDesktop}
+        />
+      )}
+
       {selectedEvent !== null && (
         <EventDrawer
           event={selectedEvent}
@@ -277,7 +289,7 @@ export default function Calendar() {
 
       {/* Floating action button */}
       <button
-        onClick={() => setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' })}
+        onClick={() => { setSelectedItem(null); setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' }) }}
         className="fixed bottom-20 right-5 lg:bottom-8 lg:right-8 w-14 h-14 rounded-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white text-3xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50 transition-all z-30">
         +
       </button>
