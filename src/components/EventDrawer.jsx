@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
 
+const COMPANIES = [
+  { value: 'Isis Windows',     label: 'Isis',     cls: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' },
+  { value: 'Paradise Windows', label: 'Paradise', cls: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' },
+  { value: 'Elite Windows',    label: 'Elite',    cls: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' },
+]
+
 const EVENT_TYPES = [
   { value: 'quote',   label: 'Quote',   color: '#f59e0b' },
   { value: 'survey',  label: 'Survey',  color: '#a855f7' },
@@ -63,6 +69,19 @@ export default function EventDrawer({ event, onClose, onSave, onDelete, isDeskto
                     : 'bg-transparent border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'}`}
                 style={form.type === t.value ? { background: t.color, borderColor: t.color } : {}}>
                 {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Company</label>
+          <div className="flex flex-wrap gap-2">
+            {COMPANIES.map(c => (
+              <button key={c.value} onClick={() => set('company', form.company === c.value ? '' : c.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all
+                  ${form.company === c.value ? c.cls : 'bg-transparent border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-gray-300 dark:hover:border-gray-500'}`}>
+                {c.label}
               </button>
             ))}
           </div>

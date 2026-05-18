@@ -6,6 +6,7 @@ function fromCloud(e) {
     id: e.id,
     title: e.title || '',
     type: e.type || '',
+    company: e.company || '',
     date: e.date || '',
     endDate: e.end_date || '',
     color: e.color || '#6366f1',
@@ -19,6 +20,7 @@ function toCloud(e) {
   const payload = {
     title: e.title || null,
     type: e.type || null,
+    company: e.company || null,
     date: e.date || null,
     end_date: e.endDate || null,
     color: e.color || '#6366f1',

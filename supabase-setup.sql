@@ -18,7 +18,8 @@ create table if not exists contacts (
 create table if not exists events (
   id         uuid default gen_random_uuid() primary key,
   title      text not null,
-  type       text,  -- quote | survey | install | meeting | other
+  type       text,     -- quote | survey | install | meeting | other
+  company    text,     -- Isis Windows | Paradise Windows | Elite Windows
   date       date not null,
   end_date   date,
   color      text default '#6366f1',
