@@ -27,31 +27,31 @@ export default function PasswordGate({ onUnlock }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 transition-colors">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 w-full max-w-sm transition-colors">
         <div className="flex justify-center mb-6">
           <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center">
             <span className="text-white font-bold text-lg">T</span>
           </div>
         </div>
-        <h1 className="text-xl font-bold text-gray-900 text-center mb-1">Tuesday CRM</h1>
-        <p className="text-sm text-gray-500 text-center mb-6">Enter the team password to continue</p>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-1">Tuesday CRM</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">Enter the team password to continue</p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-4">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm rounded-lg px-4 py-3 mb-4">
             {error}
           </div>
         )}
 
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Password</label>
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Password</label>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submit()}
             autoFocus
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm outline-none focus:border-indigo-400 focus:bg-white transition-colors"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-sm outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors placeholder-gray-400"
             placeholder="Enter password"
           />
         </div>

@@ -5,9 +5,11 @@ import Layout from './components/Layout'
 import Pipeline from './pages/Pipeline'
 import Calendar from './pages/Calendar'
 import Contacts from './pages/Contacts'
+import { useTheme } from './hooks/useTheme'
 
 export default function App() {
   const [unlocked, setUnlocked] = useState(isUnlocked())
+  const { theme, setTheme } = useTheme()
 
   if (!unlocked) {
     return <PasswordGate onUnlock={() => setUnlocked(true)} />
@@ -15,7 +17,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Layout>
+      <Layout theme={theme} setTheme={setTheme}>
         <Routes>
           <Route path="/"         element={<Pipeline />} />
           <Route path="/calendar" element={<Calendar />} />

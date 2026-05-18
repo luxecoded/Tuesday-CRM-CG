@@ -1,25 +1,26 @@
 import { NavLink } from 'react-router-dom'
 import { lockApp } from './PasswordGate'
+import ThemeToggle from './ThemeToggle'
 
 const navItems = [
-  { to: '/',          icon: '📋', label: 'Pipeline'  },
-  { to: '/calendar',  icon: '📅', label: 'Calendar'  },
-  { to: '/contacts',  icon: '👥', label: 'Contacts'  },
+  { to: '/',         icon: '📋', label: 'Pipeline' },
+  { to: '/calendar', icon: '📅', label: 'Calendar' },
+  { to: '/contacts', icon: '👥', label: 'Contacts' },
 ]
 
-export default function Layout({ children }) {
+export default function Layout({ children, theme, setTheme }) {
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden transition-colors">
 
       {/* Sidebar — desktop only */}
-      <aside className="hidden lg:flex flex-col w-56 bg-white border-r border-gray-200 flex-shrink-0">
-        <div className="h-15 flex items-center gap-3 px-5 border-b border-gray-200">
+      <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
+        <div className="h-15 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700 py-4">
           <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">T</span>
           </div>
           <div>
-            <div className="font-bold text-gray-900 text-sm">Tuesday</div>
-            <div className="text-xs text-gray-400">CRM</div>
+            <div className="font-bold text-gray-900 dark:text-white text-sm">Tuesday</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500">CRM</div>
           </div>
         </div>
 
@@ -32,8 +33,9 @@ export default function Layout({ children }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 ${isActive
-                  ? 'bg-indigo-50 text-indigo-600'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`
+                  ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'
+                }`
               }
             >
               <span className="text-base">{icon}</span>
@@ -42,10 +44,11 @@ export default function Layout({ children }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+          <ThemeToggle theme={theme} setTheme={setTheme} />
           <button
             onClick={lockApp}
-            className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors text-left"
+            className="w-full text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-left"
           >
             🔒 Lock app
           </button>
@@ -58,7 +61,7 @@ export default function Layout({ children }) {
       </div>
 
       {/* Bottom nav — mobile + tablet */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-40 pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex z-40 transition-colors">
         {navItems.map(({ to, icon, label }) => (
           <NavLink
             key={to}
@@ -66,7 +69,10 @@ export default function Layout({ children }) {
             end={to === '/'}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors
-              ${isActive ? 'text-indigo-500' : 'text-gray-400'}`
+              ${isActive
+                ? 'text-indigo-500 dark:text-indigo-400'
+                : 'text-gray-400 dark:text-gray-500'
+              }`
             }
           >
             <span className="text-xl">{icon}</span>
