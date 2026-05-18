@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react'
 
+const EVENT_TYPES = [
+  { value: 'quote',   label: 'Quote',   color: '#f59e0b' },
+  { value: 'survey',  label: 'Survey',  color: '#a855f7' },
+  { value: 'install', label: 'Install', color: '#10b981' },
+  { value: 'meeting', label: 'Meeting', color: '#6366f1' },
+  { value: 'other',   label: 'Other',   color: '#6b7280' },
+]
+
 const EVENT_COLORS = [
   '#6366f1', '#a855f7', '#ec4899', '#ef4444',
   '#f97316', '#f59e0b', '#10b981', '#38bdf8', '#6b7280',
@@ -17,6 +25,11 @@ export default function EventDrawer({ event, onClose, onSave, onDelete, isDeskto
   useEffect(() => { setForm(event); setConfirmDelete(false) }, [event])
 
   const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
+
+  const setType = (type) => {
+    const match = EVENT_TYPES.find(t => t.value === type)
+    setForm(prev => ({ ...prev, type, color: match ? match.color : prev.color }))
+  }
 
   const handleSave = async () => {
     if (!form.title?.trim() || !form.date) return
@@ -38,6 +51,23 @@ export default function EventDrawer({ event, onClose, onSave, onDelete, isDeskto
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Type</label>
+          <div className="flex flex-wrap gap-2">
+            {EVENT_TYPES.map(t => (
+              <button key={t.value} onClick={() => setType(t.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all
+                  ${form.type === t.value
+                    ? 'text-white border-transparent'
+                    : 'bg-transparent border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'}`}
+                style={form.type === t.value ? { background: t.color, borderColor: t.color } : {}}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div>
           <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Title</label>
           <input type="text" value={form.title || ''} onChange={e => set('title', e.target.value)} placeholder="Event title" className={inputCls} autoFocus />
