@@ -143,7 +143,8 @@ export default function Calendar() {
         </div>
 
         {/* Calendar */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 transition-colors pb-24 lg:pb-0">
+        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 transition-colors pb-24 lg:pb-6 px-4 lg:px-8 py-4">
+          <div className="max-w-5xl mx-auto rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
           {/* Day headers */}
           <div className="grid grid-cols-7 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
             {DAY_NAMES.map(d => (
@@ -196,6 +197,7 @@ export default function Calendar() {
                 </div>
               )
             })}
+          </div>
           </div>
         </div>
       </div>
