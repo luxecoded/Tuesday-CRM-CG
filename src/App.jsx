@@ -1,15 +1,27 @@
-import './index.css'
+import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import PasswordGate, { isUnlocked } from './components/PasswordGate'
+import Layout from './components/Layout'
+import Pipeline from './pages/Pipeline'
+import Calendar from './pages/Calendar'
+import Contacts from './pages/Contacts'
 
 export default function App() {
+  const [unlocked, setUnlocked] = useState(isUnlocked())
+
+  if (!unlocked) {
+    return <PasswordGate onUnlock={() => setUnlocked(true)} />
+  }
+
   return (
-    <div className="flex items-center justify-center h-full bg-gray-50">
-      <div className="text-center">
-        <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-lg">T</span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">Tuesday CRM</h1>
-        <p className="text-gray-500 mt-1 text-sm">Project initialised — ready to build</p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/"         element={<Pipeline />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/contacts" element={<Contacts />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   )
 }
