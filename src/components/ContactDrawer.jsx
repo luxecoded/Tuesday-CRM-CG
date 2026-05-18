@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 const COMPANIES = ['Isis Windows', 'Paradise Windows', 'Elite Windows']
 
@@ -16,7 +16,7 @@ const STAGE_COLORS = {
   'Completed': '#059669', 'Service Call': '#6b7280',
 }
 
-const inputCls = "w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+const inputCls = "w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-green-600 dark:focus:border-green-500 transition-colors"
 
 function fmt(val) {
   if (!val) return '—'
@@ -29,8 +29,19 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => { setForm(contact); setConfirmDelete(false) }, [contact])
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpen(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    setOpen(false)
+    setTimeout(onClose, 300)
+  }, [onClose])
 
   const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
 
@@ -47,7 +58,14 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
   const handleDelete = async () => {
     if (!confirmDelete) { setConfirmDelete(true); return }
     setDeleting(true)
-    try { await onDelete(form.id) } finally { setDeleting(false) }
+    try {
+      await onDelete(form.id)
+      handleClose()
+    } catch {
+      alert('Could not delete contact.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const content = (
@@ -63,7 +81,7 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
             </span>
           )}
         </div>
-        <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 transition-colors flex-shrink-0 mt-0.5">✕</button>
+        <button onClick={handleClose} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 transition-colors flex-shrink-0 mt-0.5">✕</button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
@@ -97,7 +115,7 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
         </div>
 
         <button onClick={handleSave} disabled={saving || !form.name?.trim()}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+          className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-50 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
           {saving ? 'Saving…' : isNew ? 'Add Contact' : 'Save changes'}
         </button>
 
@@ -149,16 +167,21 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
 
   if (isDesktop) {
     return (
-      <div className="w-96 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col h-full flex-shrink-0 transition-colors">
-        {content}
+      <div className={`flex-shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${open ? 'w-96' : 'w-0'}`}>
+        <div className="w-96 h-full border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col transition-colors">
+          {content}
+        </div>
       </div>
     )
   }
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl z-50 flex flex-col max-h-[88vh] transition-colors">
+      <div
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}
+        onClick={handleClose}
+      />
+      <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl z-50 flex flex-col max-h-[88vh] transition-all duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="w-9 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
         {content}
       </div>

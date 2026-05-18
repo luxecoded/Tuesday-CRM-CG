@@ -14,7 +14,7 @@ export default function Layout({ children }) {
       {/* Sidebar — desktop only */}
       <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
         <div className="h-15 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700 py-4">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">T</span>
           </div>
           <div>
@@ -32,7 +32,7 @@ export default function Layout({ children }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 ${isActive
-                  ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                  ? 'bg-green-50 dark:bg-green-500/10 text-green-800 dark:text-green-600'
                   : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'
                 }`
               }
@@ -68,7 +68,7 @@ export default function Layout({ children }) {
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors
               ${isActive
-                ? 'text-indigo-500 dark:text-indigo-400'
+                ? 'text-green-500 dark:text-green-600'
                 : 'text-gray-400 dark:text-gray-500'
               }`
             }

@@ -23,8 +23,15 @@ export function useTheme() {
     return () => mq.removeEventListener('change', apply)
   }, [theme])
 
+  const applyTheme = (value) => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isDark = value === 'dark' || (value === 'auto' && prefersDark)
+    document.documentElement.classList.toggle('dark', isDark)
+  }
+
   const setTheme = (value) => {
     localStorage.setItem(STORAGE_KEY, value)
+    applyTheme(value)
     setThemeState(value)
   }
 

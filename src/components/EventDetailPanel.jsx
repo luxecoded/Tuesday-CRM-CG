@@ -128,7 +128,7 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
             )}
             <div className="pt-2">
               <button onClick={onEdit}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
+                className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
                 Edit Event
               </button>
             </div>
@@ -140,9 +140,10 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
 
   if (isDesktop) {
     return (
-      <div className={`w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col h-full flex-shrink-0 transition-transform duration-200 ease-out
-        ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
-        {content}
+      <div className={`flex-shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${visible ? 'w-80' : 'w-0'}`}>
+        <div className="w-80 h-full border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col transition-colors">
+          {content}
+        </div>
       </div>
     )
   }
@@ -150,7 +151,7 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-250 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleClose}
       />
       <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl z-50 flex flex-col max-h-[85vh] transition-transform duration-300 ease-out

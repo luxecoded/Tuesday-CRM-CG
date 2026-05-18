@@ -6,14 +6,15 @@ export default function ThemeToggle({ theme, setTheme }) {
   // Single click = set light/dark. Double click = auto mode.
   const handleClick = (value) => {
     if (timerRef.current) {
-      // Second click arrived before timeout — it's a double click
+      // Second click within window — double-click → auto
       clearTimeout(timerRef.current)
       timerRef.current = null
       setTheme('auto')
     } else {
+      // Apply immediately; open a window in case of double-click
+      setTheme(value)
       timerRef.current = setTimeout(() => {
         timerRef.current = null
-        setTheme(value)
       }, 250)
     }
   }
@@ -48,7 +49,7 @@ export default function ThemeToggle({ theme, setTheme }) {
       >
         ☀️
         {isAuto && autoActive === 'light' && (
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-indigo-400 rounded-full border border-white dark:border-gray-700" />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-600 rounded-full border border-white dark:border-gray-700" />
         )}
       </button>
 
@@ -57,11 +58,11 @@ export default function ThemeToggle({ theme, setTheme }) {
         onClick={() => handleClick('dark')}
         title="Dark (double-click for Auto)"
         className={`relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-base transition-colors duration-200
-          ${moonActive ? 'text-indigo-500' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
+          ${moonActive ? 'text-green-500' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
       >
         🌙
         {isAuto && autoActive === 'dark' && (
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-indigo-400 rounded-full border border-white dark:border-gray-700" />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-600 rounded-full border border-white dark:border-gray-700" />
         )}
       </button>
     </div>

@@ -3,6 +3,7 @@ import { useDeals } from '../hooks/useDeals'
 import DealDrawer from '../components/DealDrawer'
 import ThemeToggle from '../components/ThemeToggle'
 import { useThemeContext } from '../context/ThemeContext'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 
 const STAGE_ORDER = [
   'Quote','Awaiting Client','Survey','Follow Up','Signed',
@@ -15,7 +16,7 @@ const STAGE_COLORS = {
   'Awaiting Client':                '#f59e0b',
   'Survey':                         '#38bdf8',
   'Follow Up':                      '#ec4899',
-  'Signed':                         '#6366f1',
+  'Signed':                         '#7c3aed',
   'To Order':                       '#f97316',
   'Installation TBC':               '#84cc16',
   'Installation Booked':            '#10b981',
@@ -43,7 +44,7 @@ export default function Pipeline() {
   const [stageFilter, setStageFilter] = useState('All')
   const [viewMode, setViewMode]       = useState(() => localStorage.getItem('tuesday-view-mode') || 'card')
   const [selectedDeal, setSelectedDeal] = useState(null)
-  const isDesktop = window.innerWidth >= 1024
+  const isDesktop = useIsDesktop()
 
   const setView = mode => { setViewMode(mode); localStorage.setItem('tuesday-view-mode', mode) }
 
@@ -94,14 +95,14 @@ export default function Pipeline() {
               <button onClick={() => setView('card')}
                 className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
                   ${viewMode === 'card'
-                    ? 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                    ? 'bg-white dark:bg-gray-600 text-green-800 dark:text-green-600 shadow-sm'
                     : 'text-gray-500 dark:text-gray-400'}`}>
                 ⊞ Grid
               </button>
               <button onClick={() => setView('list')}
                 className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
                   ${viewMode === 'list'
-                    ? 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                    ? 'bg-white dark:bg-gray-600 text-green-800 dark:text-green-600 shadow-sm'
                     : 'text-gray-500 dark:text-gray-400'}`}>
                 ☰ List
               </button>
@@ -114,15 +115,15 @@ export default function Pipeline() {
           <input
             type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="🔍  Search deals…"
-            className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+            className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-green-600 dark:focus:border-green-500 transition-colors"
           />
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {['All', ...STAGE_ORDER].map(s => (
               <button key={s} onClick={() => setStageFilter(s)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors
                   ${stageFilter === s
-                    ? 'bg-indigo-500 border-indigo-500 text-white'
-                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-indigo-600'}`}>
+                    ? 'bg-green-700 border-green-700 text-white'
+                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-green-500 dark:hover:border-green-800'}`}>
                 {s}
               </button>
             ))}
@@ -167,8 +168,8 @@ export default function Pipeline() {
                       <div key={deal.id} onClick={() => setSelectedDeal(deal)}
                         className={`bg-white dark:bg-gray-800 rounded-xl border p-4 cursor-pointer transition-all relative overflow-hidden
                           ${selectedDeal?.id === deal.id
-                            ? 'border-indigo-400 shadow-md shadow-indigo-100 dark:shadow-indigo-900/30'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-sm'}`}>
+                            ? 'border-green-600 shadow-md shadow-green-100 dark:shadow-green-900/30'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-800 hover:shadow-sm'}`}>
                         <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{ background: color }} />
                         <div className="pl-3">
                           <div className="flex items-start justify-between mb-2">
@@ -208,7 +209,7 @@ export default function Pipeline() {
                           <tr key={deal.id} onClick={() => setSelectedDeal(deal)}
                             className={`cursor-pointer transition-colors border-l-4
                               ${selectedDeal?.id === deal.id
-                                ? 'bg-indigo-50 dark:bg-indigo-900/20'
+                                ? 'bg-green-50 dark:bg-green-900/20'
                                 : i % 2 === 0
                                   ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                                   : 'bg-gray-50/50 dark:bg-gray-700/20 hover:bg-gray-50 dark:hover:bg-gray-700/50'

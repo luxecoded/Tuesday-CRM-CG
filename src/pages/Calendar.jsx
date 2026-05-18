@@ -5,6 +5,7 @@ import EventDrawer from '../components/EventDrawer'
 import EventDetailPanel from '../components/EventDetailPanel'
 import ThemeToggle from '../components/ThemeToggle'
 import { useThemeContext } from '../context/ThemeContext'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 
 const MONTH_NAMES = [
   'January','February','March','April','May','June',
@@ -118,20 +119,16 @@ export default function Calendar() {
     return map
   }, [deals, events])
 
-  const isDesktop = window.innerWidth >= 1024
+  const isDesktop = useIsDesktop()
 
   const handleDayClick  = (key) => { setSelectedItem(null); setSelected({ title: '', date: key, endDate: '', color: '#6366f1', notes: '' }) }
   const handleItemClick = (e, item) => { e.stopPropagation(); setSelected(null); setSelectedItem(item) }
   const handleEditFromPanel = () => { if (selectedItem?.event) { setSelected(selectedItem.event); setSelectedItem(null) } }
   const handleSave = async (data) => {
-    try {
-      if (data.id) await updateEvent(data); else await addEvent(data)
-      setSelected(null)
-    } catch { alert('Could not save event — run supabase-setup.sql in your Supabase SQL editor first.') }
+    if (data.id) await updateEvent(data); else await addEvent(data)
   }
   const handleDelete = async (id) => {
-    try { await deleteEvent(id); setSelected(null) }
-    catch { alert('Could not delete event.') }
+    await deleteEvent(id)
   }
 
   const itemChip = (item) => (
@@ -172,7 +169,7 @@ export default function Calendar() {
             {[['month','Month'],['week','Week'],['3day','3 Day']].map(([v, label]) => (
               <button key={v} onClick={() => switchView(v)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors
-                  ${view === v ? 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+                  ${view === v ? 'bg-white dark:bg-gray-600 text-green-800 dark:text-green-600 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
                 {label}
               </button>
             ))}
@@ -199,9 +196,9 @@ export default function Calendar() {
                   <div key={idx} onClick={() => handleDayClick(key)}
                     className={`border-b border-r border-gray-200 dark:border-gray-700/50 p-1.5 cursor-pointer transition-colors overflow-hidden
                       ${isCurrentMonth ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900/60'}
-                      hover:bg-indigo-50 dark:hover:bg-indigo-900/20`}>
+                      hover:bg-green-50 dark:hover:bg-green-900/20`}>
                     <div className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1
-                      ${isToday ? 'bg-indigo-500 text-white' : isCurrentMonth ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}`}>
+                      ${isToday ? 'bg-green-700 text-white' : isCurrentMonth ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}`}>
                       {date.getDate()}
                     </div>
                     <div className="space-y-0.5">
@@ -232,12 +229,12 @@ export default function Calendar() {
                 const isToday = dateKey(date) === todayKey
                 return (
                   <div key={i} className={`py-3 text-center border-r border-gray-200 dark:border-gray-700/50 last:border-r-0
-                    ${isToday ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}`}>
+                    ${isToday ? 'bg-green-50 dark:bg-green-900/20' : ''}`}>
                     <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
                       {DAY_NAMES[(date.getDay() + 6) % 7]}
                     </div>
                     <div className={`text-xl font-bold mt-0.5 w-10 h-10 mx-auto flex items-center justify-center rounded-full
-                      ${isToday ? 'bg-indigo-500 text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+                      ${isToday ? 'bg-green-700 text-white' : 'text-gray-800 dark:text-gray-100'}`}>
                       {date.getDate()}
                     </div>
                     <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
@@ -256,7 +253,7 @@ export default function Calendar() {
                 return (
                   <div key={i}
                     onClick={() => handleDayClick(key)}
-                    className="flex-1 border-r border-gray-200 dark:border-gray-700/50 last:border-r-0 p-2 overflow-y-auto cursor-pointer hover:bg-indigo-50/40 dark:hover:bg-indigo-900/10 transition-colors">
+                    className="flex-1 border-r border-gray-200 dark:border-gray-700/50 last:border-r-0 p-2 overflow-y-auto cursor-pointer hover:bg-green-50/40 dark:hover:bg-green-900/10 transition-colors">
                     <div className="space-y-1.5">
                       {items.map(item => itemChip(item))}
                     </div>
@@ -290,8 +287,10 @@ export default function Calendar() {
       {/* Floating action button */}
       <button
         onClick={() => { setSelectedItem(null); setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' }) }}
-        className="fixed bottom-20 right-5 lg:bottom-8 lg:right-8 w-14 h-14 rounded-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white text-3xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50 transition-all z-30">
-        +
+        className="fixed bottom-20 right-5 lg:bottom-8 lg:right-8 w-14 h-14 rounded-full bg-green-700 hover:bg-green-800 active:scale-95 text-white flex items-center justify-center shadow-lg shadow-green-200 dark:shadow-green-900/50 transition-all z-30">
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
       </button>
     </div>
   )

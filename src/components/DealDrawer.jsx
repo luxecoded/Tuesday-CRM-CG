@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 const STAGES = [
   'Quote','Awaiting Client','Survey','Follow Up','Signed',
@@ -12,7 +12,7 @@ const STAGE_COLOURS = {
   'Awaiting Client':                'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
   'Survey':                         'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
   'Follow Up':                      'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300',
-  'Signed':                         'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+  'Signed':                         'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
   'To Order':                       'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
   'Installation TBC':               'bg-lime-100 text-lime-700 dark:bg-lime-900/40 dark:text-lime-300',
   'Installation Booked':            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
@@ -29,13 +29,24 @@ function calcGP(deal) {
   return gp.toFixed(1)
 }
 
-const inputCls = "w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+const inputCls = "w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-green-600 dark:focus:border-green-500 transition-colors"
 
 export default function DealDrawer({ deal, onClose, onSave, isDesktop }) {
   const [form, setForm] = useState(deal)
   const [saving, setSaving] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => { setForm(deal) }, [deal])
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpen(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    setOpen(false)
+    setTimeout(onClose, 300)
+  }, [onClose])
 
   const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
 
@@ -54,7 +65,7 @@ export default function DealDrawer({ deal, onClose, onSave, isDesktop }) {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">{form.deal || 'Unnamed deal'}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">{form.company}</p>
         </div>
-        <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 transition-colors flex-shrink-0 mt-0.5">✕</button>
+        <button onClick={handleClose} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 transition-colors flex-shrink-0 mt-0.5">✕</button>
       </div>
 
       {/* Body */}
@@ -129,12 +140,12 @@ export default function DealDrawer({ deal, onClose, onSave, isDesktop }) {
         </div>
 
         <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={form.deposit} onChange={e => set('deposit', e.target.checked)} className="w-4 h-4 accent-indigo-500" />
+          <input type="checkbox" checked={form.deposit} onChange={e => set('deposit', e.target.checked)} className="w-4 h-4 accent-green-500" />
           <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Deposit received</span>
         </label>
 
         <button onClick={handleSave} disabled={saving}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+          className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
           {saving ? 'Saving…' : 'Save changes'}
         </button>
       </div>
@@ -143,16 +154,21 @@ export default function DealDrawer({ deal, onClose, onSave, isDesktop }) {
 
   if (isDesktop) {
     return (
-      <div className="w-96 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col h-full flex-shrink-0 transition-colors">
-        {content}
+      <div className={`flex-shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${open ? 'w-96' : 'w-0'}`}>
+        <div className="w-96 h-full border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col transition-colors">
+          {content}
+        </div>
       </div>
     )
   }
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl z-50 flex flex-col max-h-[88vh] transition-colors">
+      <div
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}
+        onClick={handleClose}
+      />
+      <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl z-50 flex flex-col max-h-[88vh] transition-all duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="w-9 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
         {content}
       </div>
