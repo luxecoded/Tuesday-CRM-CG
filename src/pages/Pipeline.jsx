@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useDeals } from '../hooks/useDeals'
 import DealDrawer from '../components/DealDrawer'
+import ThemeToggle from '../components/ThemeToggle'
+import { useThemeContext } from '../context/ThemeContext'
 
 const STAGE_ORDER = [
   'Quote','Awaiting Client','Survey','Follow Up','Signed',
@@ -36,6 +38,7 @@ function fmt(val) {
 
 export default function Pipeline() {
   const { deals, loading, error, updateDeal } = useDeals()
+  const { theme, setTheme } = useThemeContext()
   const [search, setSearch]           = useState('')
   const [stageFilter, setStageFilter] = useState('All')
   const [viewMode, setViewMode]       = useState(() => localStorage.getItem('tuesday-view-mode') || 'card')
@@ -83,6 +86,9 @@ export default function Pipeline() {
             <p className="text-xs text-gray-400 dark:text-gray-500">{filtered.length} active deals</p>
           </div>
           <div className="flex items-center gap-2">
+            {/* Theme toggle */}
+            <ThemeToggle theme={theme} setTheme={setTheme} />
+
             {/* View toggle */}
             <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
               <button onClick={() => setView('card')}

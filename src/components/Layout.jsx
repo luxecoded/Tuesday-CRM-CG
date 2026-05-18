@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom'
 import { lockApp } from './PasswordGate'
-import ThemeToggle from './ThemeToggle'
 
 const navItems = [
   { to: '/',         icon: '📋', label: 'Pipeline' },
@@ -8,7 +7,7 @@ const navItems = [
   { to: '/contacts', icon: '👥', label: 'Contacts' },
 ]
 
-export default function Layout({ children, theme, setTheme }) {
+export default function Layout({ children }) {
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden transition-colors">
 
@@ -44,8 +43,7 @@ export default function Layout({ children, theme, setTheme }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-          <ThemeToggle theme={theme} setTheme={setTheme} />
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={lockApp}
             className="w-full text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-left"

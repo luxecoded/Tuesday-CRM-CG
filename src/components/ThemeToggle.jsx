@@ -1,7 +1,7 @@
 const OPTIONS = [
-  { value: 'light', icon: '☀️', label: 'Light'  },
-  { value: 'auto',  icon: '💻', label: 'Auto'   },
-  { value: 'dark',  icon: '🌙', label: 'Dark'   },
+  { value: 'light', icon: '☀️', label: 'Light' },
+  { value: 'auto',  icon: '💻', label: 'Auto'  },
+  { value: 'dark',  icon: '🌙', label: 'Dark'  },
 ]
 
 export default function ThemeToggle({ theme, setTheme }) {
@@ -12,14 +12,15 @@ export default function ThemeToggle({ theme, setTheme }) {
           key={opt.value}
           onClick={() => setTheme(opt.value)}
           title={opt.label}
-          className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all
+          className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all
             ${theme === opt.value
               ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
               : 'text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
             }`}
         >
-          <span>{opt.icon}</span>
-          <span className="hidden sm:inline">{opt.label}</span>
+          <span className="text-sm leading-none">{opt.icon}</span>
+          {/* Label hidden on small screens to save topbar space */}
+          <span className="hidden md:inline">{opt.label}</span>
         </button>
       ))}
     </div>
