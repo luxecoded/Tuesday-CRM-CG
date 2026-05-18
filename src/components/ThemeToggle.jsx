@@ -29,17 +29,22 @@ export default function ThemeToggle({ theme, setTheme }) {
   const sunActive  = isLight || autoActive === 'light'
   const moonActive = isDark  || autoActive === 'dark'
 
+  const slideRight = moonActive
+
   return (
     <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-full p-0.5 gap-0.5 relative">
+      {/* Sliding thumb */}
+      <div
+        className="absolute top-0.5 left-0.5 w-8 h-8 rounded-full bg-white dark:bg-gray-600 shadow-sm transition-transform duration-200 ease-in-out pointer-events-none"
+        style={{ transform: `translateX(${slideRight ? 34 : 0}px)` }}
+      />
+
       {/* Sun */}
       <button
         onClick={() => handleClick('light')}
         title="Light (double-click for Auto)"
-        className={`relative w-8 h-8 flex items-center justify-center rounded-full text-base transition-all
-          ${sunActive
-            ? 'bg-white dark:bg-gray-600 shadow-sm text-amber-500'
-            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
-          }`}
+        className={`relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-base transition-colors duration-200
+          ${sunActive ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
       >
         ☀️
         {isAuto && autoActive === 'light' && (
@@ -51,11 +56,8 @@ export default function ThemeToggle({ theme, setTheme }) {
       <button
         onClick={() => handleClick('dark')}
         title="Dark (double-click for Auto)"
-        className={`relative w-8 h-8 flex items-center justify-center rounded-full text-base transition-all
-          ${moonActive
-            ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-500'
-            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
-          }`}
+        className={`relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-base transition-colors duration-200
+          ${moonActive ? 'text-indigo-500' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
       >
         🌙
         {isAuto && autoActive === 'dark' && (
