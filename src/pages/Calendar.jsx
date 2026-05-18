@@ -40,7 +40,7 @@ function getCalendarDays(year, month) {
 
 export default function Calendar() {
   const { deals } = useDeals()
-  const { events, addEvent, updateEvent, deleteEvent } = useEvents()
+  const { events, tableExists, addEvent, updateEvent, deleteEvent } = useEvents()
   const { theme, setTheme } = useThemeContext()
 
   const today    = new Date()
@@ -78,6 +78,7 @@ export default function Calendar() {
   const isDesktop = window.innerWidth >= 1024
 
   const handleDayClick = (key) => {
+    if (!tableExists) return
     setSelected({ title: '', date: key, endDate: '', color: '#6366f1', notes: '' })
   }
 
@@ -109,11 +110,13 @@ export default function Calendar() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} />
-            <button
-              onClick={() => setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' })}
-              className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors">
-              + Event
-            </button>
+            {tableExists && (
+              <button
+                onClick={() => setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' })}
+                className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors">
+                + Event
+              </button>
+            )}
           </div>
         </div>
 
@@ -197,7 +200,7 @@ export default function Calendar() {
         </div>
       </div>
 
-      {selectedEvent !== null && (
+      {selectedEvent !== null && tableExists && (
         <EventDrawer
           event={selectedEvent}
           onClose={() => setSelected(null)}

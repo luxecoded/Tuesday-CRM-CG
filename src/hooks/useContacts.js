@@ -4,12 +4,11 @@ import { supabase } from '../lib/supabase'
 function fromCloud(c) {
   return {
     id: c.id,
-    firstName: c.first_name || '',
-    lastName: c.last_name || '',
+    name: c.name || '',
+    company: c.company || '',
     email: c.email || '',
     phone: c.phone || '',
-    company: c.company || '',
-    role: c.role || '',
+    linkedDeal: c.linked_deal || '',
     notes: c.notes || '',
     createdAt: c.created_at || '',
   }
@@ -17,13 +16,13 @@ function fromCloud(c) {
 
 function toCloud(c) {
   const payload = {
-    first_name: c.firstName || null,
-    last_name: c.lastName || null,
+    name: c.name || null,
+    company: c.company || null,
     email: c.email || null,
     phone: c.phone || null,
-    company: c.company || null,
-    role: c.role || null,
+    linked_deal: c.linkedDeal || null,
     notes: c.notes || null,
+    group_id: 'active',
   }
   if (c.id) payload.id = c.id
   return payload
@@ -46,7 +45,7 @@ export function useContacts() {
   }, [])
 
   async function fetchContacts() {
-    const { data, error } = await supabase.from('contacts').select('*').order('last_name')
+    const { data, error } = await supabase.from('contacts').select('*').order('name')
     if (error) { setError(error.message); setLoading(false); return }
     setContacts((data || []).map(fromCloud))
     setLoading(false)
@@ -56,7 +55,7 @@ export function useContacts() {
     const { data, error } = await supabase.from('contacts').insert(toCloud(c)).select().single()
     if (error) throw error
     const added = fromCloud(data)
-    setContacts(prev => [...prev, added].sort((a, b) => a.lastName.localeCompare(b.lastName)))
+    setContacts(prev => [...prev, added].sort((a, b) => a.name.localeCompare(b.name)))
     return added
   }
 

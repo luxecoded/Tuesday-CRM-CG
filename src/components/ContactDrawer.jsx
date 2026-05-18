@@ -35,11 +35,11 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
   const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
 
   const linkedDeals = deals.filter(d =>
-    d.contactId && contact.id && String(d.contactId) === String(contact.id)
+    contact.name && d.contact && d.contact === contact.name
   )
 
   const handleSave = async () => {
-    if (!form.firstName?.trim() && !form.lastName?.trim()) return
+    if (!form.name?.trim()) return
     setSaving(true)
     try { await onSave(form) } finally { setSaving(false) }
   }
@@ -55,7 +55,7 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
       <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
         <div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            {isNew ? 'New Contact' : `${form.firstName} ${form.lastName}`.trim() || 'Unnamed Contact'}
+            {isNew ? 'New Contact' : form.name || 'Unnamed Contact'}
           </h2>
           {!isNew && form.company && (
             <span className={`inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASSES[form.company] || 'bg-gray-100 text-gray-500'}`}>
@@ -67,15 +67,9 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">First Name</label>
-            <input type="text" value={form.firstName || ''} onChange={e => set('firstName', e.target.value)} placeholder="First" className={inputCls} autoFocus={isNew} />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Last Name</label>
-            <input type="text" value={form.lastName || ''} onChange={e => set('lastName', e.target.value)} placeholder="Last" className={inputCls} />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Full Name</label>
+          <input type="text" value={form.name || ''} onChange={e => set('name', e.target.value)} placeholder="Full name" className={inputCls} autoFocus={isNew} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -89,18 +83,12 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Company</label>
-            <select value={form.company || ''} onChange={e => set('company', e.target.value)} className={inputCls}>
-              <option value="">— None —</option>
-              {COMPANIES.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Role</label>
-            <input type="text" value={form.role || ''} onChange={e => set('role', e.target.value)} placeholder="e.g. Sales Lead" className={inputCls} />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Company</label>
+          <select value={form.company || ''} onChange={e => set('company', e.target.value)} className={inputCls}>
+            <option value="">— None —</option>
+            {COMPANIES.map(c => <option key={c}>{c}</option>)}
+          </select>
         </div>
 
         <div>
@@ -108,7 +96,7 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
           <textarea value={form.notes || ''} onChange={e => set('notes', e.target.value)} rows={3} placeholder="Optional notes…" className={inputCls + ' resize-none'} />
         </div>
 
-        <button onClick={handleSave} disabled={saving || (!form.firstName?.trim() && !form.lastName?.trim())}
+        <button onClick={handleSave} disabled={saving || !form.name?.trim()}
           className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
           {saving ? 'Saving…' : isNew ? 'Add Contact' : 'Save changes'}
         </button>

@@ -19,10 +19,10 @@ const COMPANY_AVATAR = {
   'Elite Windows':    'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
 }
 
-const EMPTY = { firstName: '', lastName: '', email: '', phone: '', company: '', role: '', notes: '' }
+const EMPTY = { name: '', company: '', email: '', phone: '', notes: '' }
 
-function initials(first, last) {
-  return `${(first || '')[0] || ''}${(last || '')[0] || ''}`.toUpperCase() || '?'
+function initials(name) {
+  return (name || '').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?'
 }
 
 export default function Contacts() {
@@ -42,10 +42,9 @@ export default function Contacts() {
     const matchCompany = companyFilter === 'All' || c.company === companyFilter
     const q = search.toLowerCase()
     const matchSearch = !q ||
-      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
+      (c.name || '').toLowerCase().includes(q) ||
       (c.email || '').toLowerCase().includes(q) ||
-      (c.phone || '').includes(q) ||
-      (c.role || '').toLowerCase().includes(q)
+      (c.phone || '').includes(q)
     return matchCompany && matchSearch
   })
 
@@ -162,13 +161,12 @@ export default function Contacts() {
                   <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0
                       ${COMPANY_AVATAR[contact.company] || 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300'}`}>
-                      {initials(contact.firstName, contact.lastName)}
+                      {initials(contact.name)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                        {`${contact.firstName} ${contact.lastName}`.trim() || '—'}
+                        {contact.name || '—'}
                       </div>
-                      {contact.role && <div className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">{contact.role}</div>}
                       {contact.company && (
                         <span className={`inline-block mt-1.5 text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASSES[contact.company] || 'bg-gray-50 dark:bg-gray-700 text-gray-500'}`}>
                           {contact.company}
@@ -212,11 +210,10 @@ export default function Contacts() {
                         <div className="flex items-center gap-2.5">
                           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
                             ${COMPANY_AVATAR[contact.company] || 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300'}`}>
-                            {initials(contact.firstName, contact.lastName)}
+                            {initials(contact.name)}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900 dark:text-white">{`${contact.firstName} ${contact.lastName}`.trim() || '—'}</div>
-                            {contact.role && <div className="text-xs text-gray-400 dark:text-gray-500">{contact.role}</div>}
+                            <div className="font-medium text-gray-900 dark:text-white">{contact.name || '—'}</div>
                           </div>
                         </div>
                       </td>

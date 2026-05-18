@@ -30,6 +30,7 @@ function toCloud(e) {
 export function useEvents() {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [tableExists, setTableExists] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -45,7 +46,11 @@ export function useEvents() {
 
   async function fetchEvents() {
     const { data, error } = await supabase.from('events').select('*').order('date')
-    if (error) { setError(error.message); setLoading(false); return }
+    if (error) {
+      if (error.code === 'PGRST205') { setTableExists(false); setLoading(false); return }
+      setError(error.message); setLoading(false); return
+    }
+    setTableExists(true)
     setEvents((data || []).map(fromCloud))
     setLoading(false)
   }
@@ -70,5 +75,5 @@ export function useEvents() {
     if (error) { fetchEvents(); throw error }
   }
 
-  return { events, loading, error, addEvent, updateEvent, deleteEvent }
+  return { events, loading, tableExists, error, addEvent, updateEvent, deleteEvent }
 }
