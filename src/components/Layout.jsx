@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { lockApp } from './PasswordGate'
+import { lockApp, getUserName } from './PasswordGate'
 
 const navItems = [
   { to: '/',         icon: '📋', label: 'Pipeline' },
@@ -8,6 +8,8 @@ const navItems = [
 ]
 
 export default function Layout({ children }) {
+  const userName = getUserName()
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden transition-colors">
 
@@ -15,11 +17,11 @@ export default function Layout({ children }) {
       <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
         <div className="h-15 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700 py-4">
           <div className="w-8 h-8 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">T</span>
+            <span className="text-white font-bold text-sm">E</span>
           </div>
           <div>
-            <div className="font-bold text-gray-900 dark:text-white text-sm">Tuesday</div>
-            <div className="text-xs text-gray-400 dark:text-gray-500">CRM</div>
+            <div className="font-bold text-gray-900 dark:text-white text-sm">Elite Windows</div>
+            {userName && <div className="text-xs text-gray-400 dark:text-gray-500">{userName}</div>}
           </div>
         </div>
 
