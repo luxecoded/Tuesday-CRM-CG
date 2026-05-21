@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDeals } from '../hooks/useDeals'
+import { useContacts } from '../hooks/useContacts'
 import DealDrawer from '../components/DealDrawer'
 import ThemeToggle from '../components/ThemeToggle'
 import { useThemeContext } from '../context/ThemeContext'
@@ -40,18 +41,21 @@ function fmt(val) {
 
 export default function Pipeline() {
   const { deals, loading, error, updateDeal } = useDeals()
+  const { contacts } = useContacts()
   const { theme, setTheme } = useThemeContext()
   const [search, setSearch]           = useState('')
   const [stageFilter, setStageFilter] = useState('All')
   const [viewMode, setViewMode]       = useState(() => localStorage.getItem('tuesday-view-mode') || 'card')
+  const [groupFilter, setGroupFilter]   = useState(() => localStorage.getItem('tuesday-group-filter') || 'active')
   const [selectedDeal, setSelectedDeal] = useState(null)
   const isDesktop = useIsDesktop()
   const userName = getUserName()
   const initials = userName ? userName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
 
   const setView = mode => { setViewMode(mode); localStorage.setItem('tuesday-view-mode', mode) }
+  const setGroup = g => { setGroupFilter(g); localStorage.setItem('tuesday-group-filter', g); setSelectedDeal(null) }
 
-  const activeDeals = deals.filter(d => d.group === 'active')
+  const activeDeals = deals.filter(d => d.group === groupFilter)
   const filtered = activeDeals.filter(d => {
     const matchStage = stageFilter === 'All' || d.stage === stageFilter
     const q = search.toLowerCase()
@@ -96,9 +100,25 @@ export default function Pipeline() {
           </div>
           <div className="hidden lg:block">
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">Pipeline</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{filtered.length} active deals</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{filtered.length} {groupFilter} deals</p>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex bg-black/10 dark:bg-white/8 rounded-lg p-0.5">
+              <button onClick={() => setGroup('active')}
+                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
+                  ${groupFilter === 'active'
+                    ? 'bg-white/70 dark:bg-white/15 text-green-800 dark:text-green-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300'}`}>
+                Active
+              </button>
+              <button onClick={() => setGroup('won')}
+                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
+                  ${groupFilter === 'won'
+                    ? 'bg-white/70 dark:bg-white/15 text-green-800 dark:text-green-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300'}`}>
+                Won
+              </button>
+            </div>
             <ThemeToggle theme={theme} setTheme={setTheme} />
             <div className="flex bg-black/10 dark:bg-white/8 rounded-lg p-0.5">
               <button onClick={() => setView('card')}
@@ -244,19 +264,19 @@ export default function Pipeline() {
 
           {filtered.length === 0 && (
             <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-              <div className="text-4xl mb-3">🔍</div>
-              <p className="text-sm">No deals match your search</p>
+              <div className="text-4xl mb-3">{groupFilter === 'won' ? '🏆' : '🔍'}</div>
+              <p className="text-sm">{groupFilter === 'won' ? 'No won deals yet' : 'No deals match your search'}</p>
             </div>
           )}
         </div>
       </div>
 
       {selectedDeal && isDesktop && (
-        <DealDrawer deal={selectedDeal} onClose={() => setSelectedDeal(null)} onSave={handleSave} isDesktop={true} />
+        <DealDrawer deal={selectedDeal} onClose={() => setSelectedDeal(null)} onSave={handleSave} isDesktop={true} contacts={contacts} />
       )}
 
       {selectedDeal && !isDesktop && (
-        <DealDrawer deal={selectedDeal} onClose={() => setSelectedDeal(null)} onSave={handleSave} isDesktop={false} />
+        <DealDrawer deal={selectedDeal} onClose={() => setSelectedDeal(null)} onSave={handleSave} isDesktop={false} contacts={contacts} />
       )}
     </div>
   )
