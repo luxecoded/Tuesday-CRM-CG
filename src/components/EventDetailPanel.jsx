@@ -9,9 +9,9 @@ const STAGE_COLORS = {
 }
 
 const COMPANY_CLASSES = {
-  'Isis Windows':     'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-  'Paradise Windows': 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-  'Elite Windows':    'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+  'Isis Windows':     'bg-blue-400/20 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300',
+  'Paradise Windows': 'bg-amber-400/20 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
+  'Elite Windows':    'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
 }
 
 const MILESTONE_LABELS  = { quote: 'Quote Sent', survey: 'Survey Date', install: 'Install Start' }
@@ -31,7 +31,7 @@ function fmtValue(val) {
 function Row({ label, children }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide flex-shrink-0 pt-0.5">{label}</span>
+      <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex-shrink-0 pt-0.5">{label}</span>
       <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-right">{children}</span>
     </div>
   )
@@ -62,18 +62,18 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
   const content = (
     <>
       {/* Header */}
-      <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+      <div className="flex items-start justify-between px-5 py-4 border-b border-white/25 dark:border-white/10 flex-shrink-0">
         <div className="flex items-start gap-3 min-w-0">
           <div className="w-3 h-3 rounded-full flex-shrink-0 mt-1.5" style={{ background: item.color }} />
           <div className="min-w-0">
             <h2 className="text-base font-bold text-gray-900 dark:text-white leading-snug truncate">{title}</h2>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {isDeal ? MILESTONE_LABELS[item.type] : (ev?.type ? EVENT_TYPE_LABELS[ev.type] : 'Event')}
             </p>
           </div>
         </div>
         <button onClick={handleClose}
-          className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 transition-colors flex-shrink-0 ml-3 mt-0.5">
+          className="w-8 h-8 rounded-full bg-white/40 dark:bg-white/10 hover:bg-white/60 dark:hover:bg-white/20 flex items-center justify-center text-gray-700 dark:text-gray-300 transition-colors flex-shrink-0 ml-3 mt-0.5">
           ✕
         </button>
       </div>
@@ -83,13 +83,12 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
 
         {company && (
           <Row label="Company">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${COMPANY_CLASSES[company] || 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${COMPANY_CLASSES[company] || 'bg-white/30 dark:bg-white/10 text-gray-500 dark:text-gray-400'}`}>
               {company}
             </span>
           </Row>
         )}
 
-        {/* Deal milestone fields */}
         {isDeal && deal && (
           <>
             {deal.stage && (
@@ -107,28 +106,27 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
               </Row>
             )}
             {deal.comments && (
-              <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Notes</p>
+              <div className="pt-3 border-t border-white/20 dark:border-white/8">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Notes</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{deal.comments}</p>
               </div>
             )}
           </>
         )}
 
-        {/* Custom event fields */}
         {!isDeal && ev && (
           <>
             <Row label="Date">{fmtDate(ev.date)}</Row>
             {ev.endDate && <Row label="End Date">{fmtDate(ev.endDate)}</Row>}
             {ev.notes && (
-              <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Notes</p>
+              <div className="pt-3 border-t border-white/20 dark:border-white/8">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Notes</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{ev.notes}</p>
               </div>
             )}
             <div className="pt-2">
               <button onClick={onEdit}
-                className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
+                className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-md shadow-green-700/20">
                 Edit Event
               </button>
             </div>
@@ -141,7 +139,7 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
   if (isDesktop) {
     return (
       <div className={`flex-shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${visible ? 'w-80' : 'w-0'}`}>
-        <div className="w-80 h-full border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col transition-colors">
+        <div className="w-80 h-full border-l border-white/25 dark:border-white/10 bg-white/55 dark:bg-white/10 backdrop-blur-2xl flex flex-col">
           {content}
         </div>
       </div>
@@ -151,12 +149,12 @@ export default function EventDetailPanel({ item, onClose, onEdit, isDesktop }) {
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleClose}
       />
-      <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl z-50 flex flex-col max-h-[85vh] transition-transform duration-300 ease-out
+      <div className={`fixed bottom-0 left-0 right-0 bg-white/70 dark:bg-gray-900/95 backdrop-blur-2xl rounded-t-2xl z-50 flex flex-col max-h-[85vh] transition-transform duration-300 ease-out
         ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
-        <div className="w-9 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+        <div className="w-9 h-1 bg-white/50 dark:bg-white/20 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
         {content}
       </div>
     </>

@@ -1,32 +1,63 @@
 import { NavLink } from 'react-router-dom'
 import { lockApp, getUserName } from './PasswordGate'
 
+function HomeIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 22V12h6v10" />
+    </svg>
+  )
+}
+
+function CalendarIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <rect x="3" y="4" width="18" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  )
+}
+
+function ContactsIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  )
+}
+
 const navItems = [
-  { to: '/',         icon: '📋', label: 'Pipeline' },
-  { to: '/calendar', icon: '📅', label: 'Calendar' },
-  { to: '/contacts', icon: '👥', label: 'Contacts' },
+  { to: '/',         Icon: HomeIcon,     label: 'Pipeline' },
+  { to: '/calendar', Icon: CalendarIcon, label: 'Calendar' },
+  { to: '/contacts', Icon: ContactsIcon, label: 'Contacts' },
 ]
+
 
 export default function Layout({ children }) {
   const userName = getUserName()
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden transition-colors">
+    <div className="flex h-screen overflow-hidden">
 
       {/* Sidebar — desktop only */}
-      <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
-        <div className="h-15 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700 py-4">
-          <div className="w-8 h-8 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">E</span>
-          </div>
-          <div>
-            <div className="font-bold text-gray-900 dark:text-white text-sm">Elite Windows</div>
-            {userName && <div className="text-xs text-gray-400 dark:text-gray-500">{userName}</div>}
+      <aside className="hidden lg:flex flex-col w-56 bg-white/40 dark:bg-white/5 backdrop-blur-2xl border-r border-white/25 dark:border-white/10 flex-shrink-0">
+        <div className="flex items-center gap-3 px-5 border-b border-white/20 dark:border-white/8 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-sm">E</span>
+            </div>
+            <div>
+              <div className="font-bold text-gray-900 dark:text-white text-sm">Elite Windows</div>
+              {userName && <div className="text-xs text-gray-500 dark:text-gray-400">{userName}</div>}
+            </div>
           </div>
         </div>
 
         <nav className="flex-1 p-3 space-y-0.5">
-          {navItems.map(({ to, icon, label }) => (
+          {navItems.map(({ to, Icon, icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -34,21 +65,21 @@ export default function Layout({ children }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 ${isActive
-                  ? 'bg-green-50 dark:bg-green-500/10 text-green-800 dark:text-green-600'
-                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white/40 dark:bg-white/10 text-green-800 dark:text-green-500'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                 }`
               }
             >
-              <span className="text-base">{icon}</span>
+              {Icon ? <Icon className="w-4 h-4" /> : <span className="text-base">{icon}</span>}
               {label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-t border-white/20 dark:border-white/8">
           <button
             onClick={lockApp}
-            className="w-full text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-left"
+            className="w-full text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors text-left"
           >
             🔒 Lock app
           </button>
@@ -57,26 +88,31 @@ export default function Layout({ children }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
         {children}
       </div>
 
-      {/* Bottom nav — mobile + tablet */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex z-40 transition-colors">
-        {navItems.map(({ to, icon, label }) => (
+      {/* Floating bottom nav — mobile + tablet */}
+      <nav className="lg:hidden fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center
+        bg-white/65 dark:bg-white/10 backdrop-blur-2xl
+        rounded-full shadow-2xl shadow-black/10 dark:shadow-black/40
+        border border-white/60 dark:border-white/20
+        px-2 py-1.5 gap-0.5 z-40">
+        {navItems.map(({ to, Icon, icon, label }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors
+              `flex flex-col items-center gap-0.5 px-5 py-2 rounded-full text-xs font-medium transition-all duration-200
               ${isActive
-                ? 'text-green-500 dark:text-green-600'
-                : 'text-gray-400 dark:text-gray-500'
+                ? 'bg-green-600/15 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/40 dark:hover:bg-white/8'
               }`
             }
           >
-            <span className="text-xl">{icon}</span>
-            {label}
+            {Icon ? <Icon className="w-5 h-5" /> : <span className="text-xl leading-none">{icon}</span>}
+            <span className="text-[10px] font-semibold">{label}</span>
           </NavLink>
         ))}
       </nav>

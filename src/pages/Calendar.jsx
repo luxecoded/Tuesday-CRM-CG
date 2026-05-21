@@ -6,6 +6,7 @@ import EventDetailPanel from '../components/EventDetailPanel'
 import ThemeToggle from '../components/ThemeToggle'
 import { useThemeContext } from '../context/ThemeContext'
 import { useIsDesktop } from '../hooks/useIsDesktop'
+import { getUserName } from '../components/PasswordGate'
 
 const MONTH_NAMES = [
   'January','February','March','April','May','June',
@@ -65,6 +66,9 @@ export default function Calendar() {
   const today    = new Date()
   const todayKey = dateKey(today)
 
+  const userName = getUserName()
+  const initials = userName ? userName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
+
   const [view, setView]              = useState('month')
   const [current, setCurrent]        = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [selectedItem, setSelectedItem] = useState(null)
@@ -75,8 +79,8 @@ export default function Calendar() {
 
   const calDays   = useMemo(() => view === 'month' ? getCalendarDays(year, month) : [],         [year, month, view])
   const multiDays = useMemo(() => view === 'week'  ? getDayRange(getWeekStart(current), 7)
-                                : view === '3day'  ? getDayRange(current, 3)
-                                : [],                                                            [current, view])
+                              : view === '3day'  ? getDayRange(current, 3)
+                              : [],                                                            [current, view])
 
   const navLabel = view === 'month'
     ? `${MONTH_NAMES[month]} ${year}`
@@ -147,10 +151,19 @@ export default function Calendar() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Topbar */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-3 flex items-center justify-between flex-shrink-0 transition-colors">
-          <div>
+        <div className="bg-white/35 dark:bg-white/5 backdrop-blur-xl border-b border-white/25 dark:border-white/8 px-4 lg:px-6 py-3 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-2.5 lg:hidden">
+            <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center flex-shrink-0 shadow-sm shadow-green-700/25">
+              <span className="text-white font-bold text-xs">{initials}</span>
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-none">Hello,</p>
+              <p className="text-xs font-bold text-gray-900 dark:text-white leading-snug mt-0.5">{userName || 'there'}</p>
+            </div>
+          </div>
+          <div className="hidden lg:block">
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">Calendar</h1>
-            <p className="text-xs text-gray-400 dark:text-gray-500">{navLabel}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{navLabel}</p>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -158,18 +171,17 @@ export default function Calendar() {
         </div>
 
         {/* Nav bar */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-2 flex items-center gap-2 flex-shrink-0 transition-colors">
-          <button onClick={prevPeriod} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg leading-none transition-colors">‹</button>
-          <button onClick={goToday}    className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-full transition-colors">Today</button>
-          <button onClick={nextPeriod} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg leading-none transition-colors">›</button>
+        <div className="bg-white/20 dark:bg-white/3 backdrop-blur-md border-b border-white/20 dark:border-white/6 px-4 lg:px-6 py-2 flex items-center gap-2 flex-shrink-0">
+          <button onClick={prevPeriod} className="w-8 h-8 rounded-full bg-white/30 dark:bg-white/8 hover:bg-white/50 dark:hover:bg-white/15 flex items-center justify-center text-gray-600 dark:text-gray-300 text-lg leading-none transition-colors">‹</button>
+          <button onClick={goToday}    className="px-3 py-1.5 text-xs font-medium bg-white/30 dark:bg-white/8 hover:bg-white/50 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200 rounded-full transition-colors">Today</button>
+          <button onClick={nextPeriod} className="w-8 h-8 rounded-full bg-white/30 dark:bg-white/8 hover:bg-white/50 dark:hover:bg-white/15 flex items-center justify-center text-gray-600 dark:text-gray-300 text-lg leading-none transition-colors">›</button>
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 ml-1 hidden sm:inline">{navLabel}</span>
 
-          {/* View switcher */}
-          <div className="ml-auto flex bg-gray-100 dark:bg-gray-700 rounded-full p-0.5">
+          <div className="ml-auto flex bg-black/10 dark:bg-white/8 rounded-full p-0.5">
             {[['month','Month'],['week','Week'],['3day','3 Day']].map(([v, label]) => (
               <button key={v} onClick={() => switchView(v)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors
-                  ${view === v ? 'bg-white dark:bg-gray-600 text-green-800 dark:text-green-600 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+                  ${view === v ? 'bg-white/70 dark:bg-white/15 text-green-800 dark:text-green-400 shadow-sm' : 'text-gray-600 dark:text-gray-300'}`}>
                 {label}
               </button>
             ))}
@@ -178,10 +190,10 @@ export default function Calendar() {
 
         {/* ── MONTH VIEW ── */}
         {view === 'month' && (
-          <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-800 transition-colors pb-24 lg:pb-0">
-            <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex-1 flex flex-col overflow-hidden pb-24 lg:pb-0">
+            <div className="grid grid-cols-7 border-b border-white/20 dark:border-white/6 flex-shrink-0">
               {DAY_NAMES.map(d => (
-                <div key={d} className="py-2 text-center text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">{d}</div>
+                <div key={d} className="py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{d}</div>
               ))}
             </div>
             <div className="flex-1 grid grid-cols-7" style={{ gridTemplateRows: `repeat(${calDays.length / 7}, 1fr)` }}>
@@ -194,11 +206,11 @@ export default function Calendar() {
                 const overflow       = items.length - shown.length
                 return (
                   <div key={idx} onClick={() => handleDayClick(key)}
-                    className={`border-b border-r border-gray-200 dark:border-gray-700/50 p-1.5 cursor-pointer transition-colors overflow-hidden
-                      ${isCurrentMonth ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900/60'}
-                      hover:bg-green-50 dark:hover:bg-green-900/20`}>
+                    className={`border-b border-r border-white/20 dark:border-white/6 p-1.5 cursor-pointer transition-colors overflow-hidden
+                      ${isCurrentMonth ? 'bg-white/30 dark:bg-white/4' : 'bg-black/5 dark:bg-white/2'}
+                      hover:bg-green-400/15 dark:hover:bg-green-500/10`}>
                     <div className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1
-                      ${isToday ? 'bg-green-700 text-white' : isCurrentMonth ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300 dark:text-gray-600'}`}>
+                      ${isToday ? 'bg-green-700 text-white' : isCurrentMonth ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-600'}`}>
                       {date.getDate()}
                     </div>
                     <div className="space-y-0.5">
@@ -211,7 +223,7 @@ export default function Calendar() {
                           <span className="sm:hidden" style={{ color: item.color }}>●</span>
                         </div>
                       ))}
-                      {overflow > 0 && <div className="text-xs text-gray-400 dark:text-gray-500 pl-1">+{overflow} more</div>}
+                      {overflow > 0 && <div className="text-xs text-gray-500 dark:text-gray-400 pl-1">+{overflow} more</div>}
                     </div>
                   </div>
                 )
@@ -222,22 +234,21 @@ export default function Calendar() {
 
         {/* ── WEEK / 3-DAY VIEW ── */}
         {(view === 'week' || view === '3day') && (
-          <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-800 transition-colors pb-24 lg:pb-0">
-            {/* Day header row */}
-            <div className="grid flex-shrink-0 border-b border-gray-200 dark:border-gray-700" style={{ gridTemplateColumns: `repeat(${multiDays.length}, 1fr)` }}>
+          <div className="flex-1 flex flex-col overflow-hidden pb-24 lg:pb-0">
+            <div className="grid flex-shrink-0 border-b border-white/20 dark:border-white/6" style={{ gridTemplateColumns: `repeat(${multiDays.length}, 1fr)` }}>
               {multiDays.map((date, i) => {
                 const isToday = dateKey(date) === todayKey
                 return (
-                  <div key={i} className={`py-3 text-center border-r border-gray-200 dark:border-gray-700/50 last:border-r-0
-                    ${isToday ? 'bg-green-50 dark:bg-green-900/20' : ''}`}>
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                  <div key={i} className={`py-3 text-center border-r border-white/20 dark:border-white/6 last:border-r-0
+                    ${isToday ? 'bg-green-400/15 dark:bg-green-500/10' : ''}`}>
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       {DAY_NAMES[(date.getDay() + 6) % 7]}
                     </div>
                     <div className={`text-xl font-bold mt-0.5 w-10 h-10 mx-auto flex items-center justify-center rounded-full
                       ${isToday ? 'bg-green-700 text-white' : 'text-gray-800 dark:text-gray-100'}`}>
                       {date.getDate()}
                     </div>
-                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       {MONTH_SHORT[date.getMonth()]}
                     </div>
                   </div>
@@ -245,7 +256,6 @@ export default function Calendar() {
               })}
             </div>
 
-            {/* Day columns */}
             <div className="flex-1 flex overflow-hidden">
               {multiDays.map((date, i) => {
                 const key   = dateKey(date)
@@ -253,7 +263,7 @@ export default function Calendar() {
                 return (
                   <div key={i}
                     onClick={() => handleDayClick(key)}
-                    className="flex-1 border-r border-gray-200 dark:border-gray-700/50 last:border-r-0 p-2 overflow-y-auto cursor-pointer hover:bg-green-50/40 dark:hover:bg-green-900/10 transition-colors">
+                    className="flex-1 border-r border-white/20 dark:border-white/6 last:border-r-0 p-2 overflow-y-auto cursor-pointer hover:bg-green-400/10 dark:hover:bg-green-500/8 transition-colors">
                     <div className="space-y-1.5">
                       {items.map(item => itemChip(item))}
                     </div>
@@ -266,28 +276,16 @@ export default function Calendar() {
       </div>
 
       {selectedItem !== null && (
-        <EventDetailPanel
-          item={selectedItem}
-          onClose={() => setSelectedItem(null)}
-          onEdit={handleEditFromPanel}
-          isDesktop={isDesktop}
-        />
+        <EventDetailPanel item={selectedItem} onClose={() => setSelectedItem(null)} onEdit={handleEditFromPanel} isDesktop={isDesktop} />
       )}
 
       {selectedEvent !== null && (
-        <EventDrawer
-          event={selectedEvent}
-          onClose={() => setSelected(null)}
-          onSave={handleSave}
-          onDelete={selectedEvent.id ? handleDelete : null}
-          isDesktop={isDesktop}
-        />
+        <EventDrawer event={selectedEvent} onClose={() => setSelected(null)} onSave={handleSave} onDelete={selectedEvent.id ? handleDelete : null} isDesktop={isDesktop} />
       )}
 
-      {/* Floating action button */}
       <button
         onClick={() => { setSelectedItem(null); setSelected({ title: '', date: todayKey, endDate: '', color: '#6366f1', notes: '' }) }}
-        className="fixed bottom-20 right-5 lg:bottom-8 lg:right-8 w-14 h-14 rounded-full bg-green-700 hover:bg-green-800 active:scale-95 text-white flex items-center justify-center shadow-lg shadow-green-200 dark:shadow-green-900/50 transition-all z-30">
+        className="fixed bottom-20 right-5 lg:bottom-8 lg:right-8 w-14 h-14 rounded-full bg-green-700 hover:bg-green-800 active:scale-95 text-white flex items-center justify-center shadow-lg shadow-green-700/30 transition-all z-30">
         <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
