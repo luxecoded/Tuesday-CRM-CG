@@ -26,3 +26,6 @@ dist-ssr
 # Environment variables — never commit real keys
 .env
 .env.local
+
+# Claude Code local settings (may contain auth tokens)
+.claude/settings.json
