@@ -1,6 +1,61 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
+// Sync quote customer details into the contacts table.
+// Matching priority: email → phone → name.
+// Only fills in blank fields on existing contacts — never overwrites.
+async function syncContact(quote) {
+  const name  = (quote.customerName   || '').trim()
+  const email = (quote.email          || '').trim().toLowerCase()
+  const phone = (quote.contactNumber  || '').trim()
+
+  if (!name) return  // nothing to sync without a name
+
+  // --- find existing contact ---
+  let existing = null
+
+  if (!existing && email) {
+    const { data } = await supabase
+      .from('contacts').select('*').ilike('email', email).maybeSingle()
+    if (data) existing = data
+  }
+
+  if (!existing && phone) {
+    const { data } = await supabase
+      .from('contacts').select('*').eq('phone', phone).maybeSingle()
+    if (data) existing = data
+  }
+
+  if (!existing) {
+    const { data } = await supabase
+      .from('contacts').select('*').ilike('name', name).maybeSingle()
+    if (data) existing = data
+  }
+
+  if (existing) {
+    // Fill in any fields that are currently blank
+    const updates = {}
+    if (!existing.name    && name)              updates.name    = name
+    if (!existing.email   && email)             updates.email   = email
+    if (!existing.phone   && phone)             updates.phone   = phone
+    if (!existing.company)                      updates.company = 'Elite Windows'
+
+    if (Object.keys(updates).length > 0) {
+      await supabase.from('contacts').update(updates).eq('id', existing.id)
+    }
+  } else {
+    // Create a new contact record
+    const id = 'r' + Math.random().toString(36).slice(2, 14)
+    await supabase.from('contacts').insert({
+      id,
+      name,
+      email:   email || null,
+      phone:   phone || null,
+      company: 'Elite Windows',
+    })
+  }
+}
+
 function fromCloud(d) {
   return {
     id:                   d.id,
@@ -60,8 +115,10 @@ export function useQuotes() {
     const payload = toCloud(quote)
     const { data, error } = await supabase.from('quotes').insert(payload).select().single()
     if (error) throw error
-    setQuotes(prev => [fromCloud(data), ...prev])
-    return fromCloud(data)
+    const created = fromCloud(data)
+    setQuotes(prev => [created, ...prev])
+    syncContact(quote).catch(() => {})   // fire-and-forget — never blocks the save
+    return created
   }
 
   async function updateQuote(updated) {
@@ -69,6 +126,7 @@ export function useQuotes() {
     const payload = { ...toCloud(updated), id: updated.id }
     const { error } = await supabase.from('quotes').upsert(payload)
     if (error) { fetchQuotes(); throw error }
+    syncContact(updated).catch(() => {}) // fire-and-forget — never blocks the save
   }
 
   async function deleteQuote(id) {

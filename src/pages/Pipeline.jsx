@@ -41,19 +41,17 @@ export default function Pipeline() {
   const { deals, loading, error, updateDeal } = useDeals()
   const { contacts } = useContacts()
   const { theme, setTheme } = useThemeContext()
-  const [search, setSearch]           = useState('')
-  const [stageFilter, setStageFilter] = useState('All')
-  const [viewMode, setViewMode]       = useState(() => localStorage.getItem('tuesday-view-mode') || 'card')
-  const [groupFilter, setGroupFilter]   = useState(() => localStorage.getItem('tuesday-group-filter') || 'active')
+  const [search, setSearch]             = useState('')
+  const [stageFilter, setStageFilter]   = useState('All')
+  const [viewMode, setViewMode]         = useState(() => localStorage.getItem('tuesday-view-mode') || 'card')
   const [selectedDeal, setSelectedDeal] = useState(null)
   const isDesktop = useIsDesktop()
   const userName = getUserName()
   const initials = userName ? userName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
 
   const setView = mode => { setViewMode(mode); localStorage.setItem('tuesday-view-mode', mode) }
-  const setGroup = g => { setGroupFilter(g); localStorage.setItem('tuesday-group-filter', g); setSelectedDeal(null) }
 
-  const activeDeals = deals.filter(d => d.group === groupFilter)
+  const activeDeals = deals.filter(d => d.group === 'active')
   const filtered = activeDeals.filter(d => {
     const matchStage = stageFilter === 'All' || d.stage === stageFilter
     const q = search.toLowerCase()
@@ -98,25 +96,9 @@ export default function Pipeline() {
           </div>
           <div className="hidden lg:block">
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{filtered.length} {groupFilter} deals</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{filtered.length} active deals</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex bg-black/10 dark:bg-white/8 rounded-lg p-0.5">
-              <button onClick={() => setGroup('active')}
-                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
-                  ${groupFilter === 'active'
-                    ? 'bg-white/70 dark:bg-white/15 text-green-800 dark:text-green-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300'}`}>
-                Active
-              </button>
-              <button onClick={() => setGroup('won')}
-                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
-                  ${groupFilter === 'won'
-                    ? 'bg-white/70 dark:bg-white/15 text-green-800 dark:text-green-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300'}`}>
-                Won
-              </button>
-            </div>
             <ThemeToggle theme={theme} setTheme={setTheme} />
             <div className="flex bg-black/10 dark:bg-white/8 rounded-lg p-0.5">
               <button onClick={() => setView('card')}
@@ -137,24 +119,21 @@ export default function Pipeline() {
           </div>
         </div>
 
-        {/* Search + filters */}
-        <div className="bg-white/20 dark:bg-white/3 backdrop-blur-md border-b border-white/20 dark:border-white/6 px-4 lg:px-6 py-3 flex-shrink-0 space-y-2">
+        {/* Search + stage filter */}
+        <div className="bg-white/20 dark:bg-white/3 backdrop-blur-md border-b border-white/20 dark:border-white/6 px-4 lg:px-6 py-3 flex-shrink-0 flex gap-2">
           <input
             type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="🔍  Search deals…"
-            className="w-full px-4 py-2.5 bg-white/50 dark:bg-white/7 border border-white/50 dark:border-white/10 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-500/60 dark:placeholder-gray-400 outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
+            className="flex-1 px-4 py-2.5 bg-white/50 dark:bg-white/7 border border-white/50 dark:border-white/10 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-500/60 dark:placeholder-gray-400 outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
           />
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {['All', ...STAGE_ORDER].map(s => (
-              <button key={s} onClick={() => setStageFilter(s)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors
-                  ${stageFilter === s
-                    ? 'bg-green-700/90 border-green-700/90 text-white'
-                    : 'bg-white/30 dark:bg-white/6 border-white/40 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-green-500/60 dark:hover:border-green-500/40'}`}>
-                {s}
-              </button>
-            ))}
-          </div>
+          <select
+            value={stageFilter}
+            onChange={e => setStageFilter(e.target.value)}
+            className="px-3 py-2.5 bg-white/50 dark:bg-white/7 border border-white/50 dark:border-white/10 rounded-full text-sm text-gray-900 dark:text-white outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors cursor-pointer"
+          >
+            <option value="All">All Stages</option>
+            {STAGE_ORDER.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
         </div>
 
         {/* Summary */}
@@ -167,10 +146,6 @@ export default function Pipeline() {
             <div className="text-center">
               <div className="text-base font-bold text-gray-900 dark:text-white">{fmt(totalValue)}</div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pipeline</div>
-            </div>
-            <div className="text-center">
-              <div className="text-base font-bold text-gray-900 dark:text-white">{stages.length}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Stages</div>
             </div>
           </div>
         </div>
@@ -262,8 +237,8 @@ export default function Pipeline() {
 
           {filtered.length === 0 && (
             <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-              <div className="text-4xl mb-3">{groupFilter === 'won' ? '🏆' : '🔍'}</div>
-              <p className="text-sm">{groupFilter === 'won' ? 'No won deals yet' : 'No deals match your search'}</p>
+              <div className="text-4xl mb-3">🔍</div>
+              <p className="text-sm">No deals match your search</p>
             </div>
           )}
         </div>

@@ -10,24 +10,6 @@ function HomeIcon({ className }) {
   )
 }
 
-function CalendarIcon({ className }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <rect x="3" y="4" width="18" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16 2v4M8 2v4M3 10h18" />
-    </svg>
-  )
-}
-
-function ContactsIcon({ className }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  )
-}
 
 function QuotesIcon({ className }) {
   return (
@@ -49,11 +31,9 @@ function OrdersIcon({ className }) {
 }
 
 const navItems = [
-  { to: '/',         Icon: HomeIcon,     label: 'Dashboard' },
-  { to: '/quotes',   Icon: QuotesIcon,   label: 'Quotes' },
-  { to: '/orders',   Icon: OrdersIcon,   label: 'Orders' },
-  { to: '/calendar', Icon: CalendarIcon, label: 'Calendar' },
-  { to: '/contacts', Icon: ContactsIcon, label: 'Contacts' },
+  { to: '/',       Icon: HomeIcon,   label: 'Dashboard' },
+  { to: '/quotes', Icon: QuotesIcon, label: 'Quotes' },
+  { to: '/orders', Icon: OrdersIcon, label: 'Orders' },
 ]
 
 

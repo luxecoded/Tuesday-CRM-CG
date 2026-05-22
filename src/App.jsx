@@ -4,8 +4,6 @@ import { ThemeProvider } from './context/ThemeContext'
 import PasswordGate, { isUnlocked } from './components/PasswordGate'
 import Layout from './components/Layout'
 import Pipeline from './pages/Pipeline'
-import Calendar from './pages/Calendar'
-import Contacts from './pages/Contacts'
 import Quotes from './pages/Quotes'
 import Orders from './pages/Orders'
 
@@ -25,11 +23,9 @@ export default function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/"         element={<Pipeline />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/quotes"   element={<Quotes />} />
-            <Route path="/orders"   element={<Orders />} />
+            <Route path="/"       element={<Pipeline />} />
+            <Route path="/quotes" element={<Quotes />} />
+            <Route path="/orders" element={<Orders />} />
           </Routes>
         </Layout>
       </BrowserRouter>
