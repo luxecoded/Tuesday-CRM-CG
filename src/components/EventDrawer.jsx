@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-const COMPANIES = [
-  { value: 'Isis Windows',     label: 'Isis',     cls: 'bg-blue-400/20 text-blue-700 border-blue-300/40 dark:bg-blue-400/15 dark:text-blue-300 dark:border-blue-400/25' },
-  { value: 'Paradise Windows', label: 'Paradise', cls: 'bg-amber-400/20 text-amber-700 border-amber-300/40 dark:bg-amber-400/15 dark:text-amber-300 dark:border-amber-400/25' },
-  { value: 'Elite Windows',    label: 'Elite',    cls: 'bg-emerald-400/20 text-emerald-700 border-emerald-300/40 dark:bg-emerald-400/15 dark:text-emerald-300 dark:border-emerald-400/25' },
-]
+const COMPANY = 'Elite Windows'
 
 const EVENT_TYPES = [
   { value: 'quote',   label: 'Quote',   color: '#f59e0b' },
@@ -101,15 +97,9 @@ export default function EventDrawer({ event, onClose, onSave, onDelete, isDeskto
 
         <div>
           <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Company</label>
-          <div className="flex flex-wrap gap-2">
-            {COMPANIES.map(c => (
-              <button key={c.value} onClick={() => set('company', form.company === c.value ? '' : c.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all
-                  ${form.company === c.value ? c.cls : 'bg-white/20 dark:bg-white/5 border-white/40 dark:border-white/12 text-gray-500 dark:text-gray-400 hover:border-white/60 dark:hover:border-white/20'}`}>
-                {c.label}
-              </button>
-            ))}
-          </div>
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border bg-emerald-400/20 text-emerald-700 border-emerald-300/40 dark:bg-emerald-400/15 dark:text-emerald-300 dark:border-emerald-400/25">
+            {COMPANY}
+          </span>
         </div>
 
         <div>

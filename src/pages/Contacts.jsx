@@ -7,19 +7,8 @@ import { useThemeContext } from '../context/ThemeContext'
 import { useIsDesktop } from '../hooks/useIsDesktop'
 import { getUserName } from '../components/PasswordGate'
 
-const COMPANIES = ['Isis Windows', 'Paradise Windows', 'Elite Windows']
-
-const COMPANY_CLASSES = {
-  'Isis Windows':     'bg-blue-400/20 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300',
-  'Paradise Windows': 'bg-amber-400/20 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-  'Elite Windows':    'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
-}
-
-const COMPANY_AVATAR = {
-  'Isis Windows':     'bg-blue-400/25 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300',
-  'Paradise Windows': 'bg-amber-400/25 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-  'Elite Windows':    'bg-emerald-400/25 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
-}
+const COMPANY_CLASS  = 'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300'
+const COMPANY_AVATAR = 'bg-emerald-400/25 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300'
 
 const EMPTY = { name: '', company: '', email: '', phone: '', notes: '' }
 
@@ -33,7 +22,6 @@ export default function Contacts() {
   const { theme, setTheme } = useThemeContext()
 
   const [search, setSearch]           = useState('')
-  const [companyFilter, setCompanyFilter] = useState('All')
   const [viewMode, setViewMode]       = useState(() => localStorage.getItem('tuesday-contacts-view') || 'card')
   const [selected, setSelected]       = useState(null)
 
@@ -43,13 +31,11 @@ export default function Contacts() {
   const setView = mode => { setViewMode(mode); localStorage.setItem('tuesday-contacts-view', mode) }
 
   const filtered = contacts.filter(c => {
-    const matchCompany = companyFilter === 'All' || c.company === companyFilter
     const q = search.toLowerCase()
-    const matchSearch = !q ||
+    return !q ||
       (c.name || '').toLowerCase().includes(q) ||
       (c.email || '').toLowerCase().includes(q) ||
       (c.phone || '').includes(q)
-    return matchCompany && matchSearch
   })
 
   const handleSave = async (data) => {
@@ -121,17 +107,6 @@ export default function Contacts() {
             placeholder="🔍  Search contacts…"
             className="w-full px-4 py-2.5 bg-white/50 dark:bg-white/7 border border-white/50 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-500/60 dark:placeholder-gray-400 outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
           />
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {['All', ...COMPANIES].map(c => (
-              <button key={c} onClick={() => setCompanyFilter(c)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors
-                  ${companyFilter === c
-                    ? 'bg-green-700/90 border-green-700/90 text-white'
-                    : 'bg-white/30 dark:bg-white/6 border-white/40 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-green-500/60 dark:hover:border-green-500/40'}`}>
-                {c}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Stats */}
@@ -141,16 +116,10 @@ export default function Contacts() {
               <div className="text-base font-bold text-gray-900 dark:text-white">{contacts.length}</div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Total</div>
             </div>
-            {COMPANIES.map(co => {
-              const count = contacts.filter(c => c.company === co).length
-              if (count === 0) return null
-              return (
-                <div key={co} className="text-center">
-                  <div className="text-base font-bold text-gray-900 dark:text-white">{count}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{co.split(' ')[0]}</div>
-                </div>
-              )
-            })}
+            <div className="text-center">
+              <div className="text-base font-bold text-emerald-700 dark:text-emerald-400">{contacts.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Elite</div>
+            </div>
           </div>
         </div>
 
@@ -167,7 +136,7 @@ export default function Contacts() {
                       : 'border-white/40 dark:border-white/10 hover:border-green-500/50 hover:bg-white/60 dark:hover:bg-white/12'}`}>
                   <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0
-                      ${COMPANY_AVATAR[contact.company] || 'bg-white/40 dark:bg-white/10 text-gray-600 dark:text-gray-300'}`}>
+                      ${COMPANY_AVATAR}`}>
                       {initials(contact.name)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -175,7 +144,7 @@ export default function Contacts() {
                         {contact.name || '—'}
                       </div>
                       {contact.company && (
-                        <span className={`inline-block mt-1.5 text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASSES[contact.company] || 'bg-white/30 dark:bg-white/8 text-gray-500'}`}>
+                        <span className={`inline-block mt-1.5 text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASS}`}>
                           {contact.company}
                         </span>
                       )}
@@ -215,7 +184,7 @@ export default function Contacts() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                            ${COMPANY_AVATAR[contact.company] || 'bg-white/40 dark:bg-white/10 text-gray-600 dark:text-gray-300'}`}>
+                            ${COMPANY_AVATAR}`}>
                             {initials(contact.name)}
                           </div>
                           <div className="font-medium text-gray-900 dark:text-white">{contact.name || '—'}</div>
@@ -223,7 +192,7 @@ export default function Contacts() {
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
                         {contact.company && (
-                          <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASSES[contact.company] || 'bg-white/30 dark:bg-white/8 text-gray-500'}`}>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASS}`}>
                             {contact.company}
                           </span>
                         )}

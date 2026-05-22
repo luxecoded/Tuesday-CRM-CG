@@ -5,7 +5,7 @@ const STAGES = [
   'To Order','Installation TBC','Installation Booked',
   'Installed Pending Certification','Awaiting Payment','Completed','Service Call'
 ]
-const COMPANIES = ['Isis Windows', 'Paradise Windows', 'Elite Windows']
+const COMPANY = 'Elite Windows'
 
 const STAGE_COLOURS = {
   'Quote':                          'bg-purple-400/20 text-purple-700 dark:bg-purple-400/15 dark:text-purple-300',
@@ -89,19 +89,11 @@ export default function DealDrawer({ deal, onClose, onSave, isDesktop, contacts 
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Stage</label>
-            <select value={form.stage} onChange={e => set('stage', e.target.value)} className={inputCls}>
-              {STAGES.map(s => <option key={s}>{s}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Company</label>
-            <select value={form.company} onChange={e => set('company', e.target.value)} className={inputCls}>
-              {COMPANIES.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Stage</label>
+          <select value={form.stage} onChange={e => set('stage', e.target.value)} className={inputCls}>
+            {STAGES.map(s => <option key={s}>{s}</option>)}
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -128,7 +120,7 @@ export default function DealDrawer({ deal, onClose, onSave, isDesktop, contacts 
             className={inputCls}
           >
             <option value="">— None —</option>
-            {contacts.filter(c => !c.company || c.company === form.company).map(c => (
+            {contacts.filter(c => !c.company || c.company === COMPANY).map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>

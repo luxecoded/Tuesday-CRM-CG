@@ -9,9 +9,7 @@ const STAGE_COLORS = {
 }
 
 const COMPANY_CLASSES = {
-  'Isis Windows':     'bg-blue-400/20 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300',
-  'Paradise Windows': 'bg-amber-400/20 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-  'Elite Windows':    'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
+  'Elite Windows': 'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
 }
 
 const MILESTONE_LABELS  = { quote: 'Quote Sent', survey: 'Survey Date', install: 'Install Start' }

@@ -6,6 +6,8 @@ import Layout from './components/Layout'
 import Pipeline from './pages/Pipeline'
 import Calendar from './pages/Calendar'
 import Contacts from './pages/Contacts'
+import Quotes from './pages/Quotes'
+import Orders from './pages/Orders'
 
 export default function App() {
   const [unlocked, setUnlocked] = useState(isUnlocked())
@@ -26,6 +28,8 @@ export default function App() {
             <Route path="/"         element={<Pipeline />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/quotes"   element={<Quotes />} />
+            <Route path="/orders"   element={<Orders />} />
           </Routes>
         </Layout>
       </BrowserRouter>

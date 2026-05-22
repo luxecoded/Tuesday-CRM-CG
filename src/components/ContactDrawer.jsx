@@ -1,12 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
-const COMPANIES = ['Isis Windows', 'Paradise Windows', 'Elite Windows']
-
-const COMPANY_CLASSES = {
-  'Isis Windows':     'bg-blue-400/20 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300',
-  'Paradise Windows': 'bg-amber-400/20 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-  'Elite Windows':    'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
-}
+const COMPANY = 'Elite Windows'
+const COMPANY_CLASS = 'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300'
 
 const STAGE_COLORS = {
   'Quote': '#a855f7', 'Awaiting Client': '#f59e0b', 'Survey': '#38bdf8',
@@ -75,9 +70,9 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             {isNew ? 'New Contact' : form.name || 'Unnamed Contact'}
           </h2>
-          {!isNew && form.company && (
-            <span className={`inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASSES[form.company] || 'bg-white/30 dark:bg-white/10 text-gray-500'}`}>
-              {form.company}
+          {!isNew && (
+            <span className={`inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-md ${COMPANY_CLASS}`}>
+              {COMPANY}
             </span>
           )}
         </div>
@@ -103,10 +98,7 @@ export default function ContactDrawer({ contact, onClose, onSave, onDelete, isDe
 
         <div>
           <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Company</label>
-          <select value={form.company || ''} onChange={e => set('company', e.target.value)} className={inputCls}>
-            <option value="">— None —</option>
-            {COMPANIES.map(c => <option key={c}>{c}</option>)}
-          </select>
+          <input value={COMPANY} readOnly className={inputCls + ' opacity-60 cursor-default'} />
         </div>
 
         <div>

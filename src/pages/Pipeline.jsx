@@ -29,9 +29,7 @@ const STAGE_COLORS = {
 }
 
 const COMPANY_CLASSES = {
-  'Isis Windows':     'bg-blue-400/20 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300',
-  'Paradise Windows': 'bg-amber-400/20 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-  'Elite Windows':    'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
+  'Elite Windows': 'bg-emerald-400/20 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
 }
 
 function fmt(val) {
@@ -99,7 +97,7 @@ export default function Pipeline() {
             </div>
           </div>
           <div className="hidden lg:block">
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Pipeline</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Dashboard</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">{filtered.length} {groupFilter} deals</p>
           </div>
           <div className="flex items-center gap-2">

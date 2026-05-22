@@ -29,8 +29,29 @@ function ContactsIcon({ className }) {
   )
 }
 
+function QuotesIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" />
+    </svg>
+  )
+}
+
+function OrdersIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+      <line x1="12" y1="12" x2="12" y2="16" strokeLinecap="round" />
+      <line x1="10" y1="14" x2="14" y2="14" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 const navItems = [
-  { to: '/',         Icon: HomeIcon,     label: 'Pipeline' },
+  { to: '/',         Icon: HomeIcon,     label: 'Dashboard' },
+  { to: '/quotes',   Icon: QuotesIcon,   label: 'Quotes' },
+  { to: '/orders',   Icon: OrdersIcon,   label: 'Orders' },
   { to: '/calendar', Icon: CalendarIcon, label: 'Calendar' },
   { to: '/contacts', Icon: ContactsIcon, label: 'Contacts' },
 ]
@@ -63,10 +84,10 @@ export default function Layout({ children }) {
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors border
                 ${isActive
-                  ? 'bg-white/40 dark:bg-white/10 text-green-800 dark:text-green-500'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-green-600/15 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-transparent'
+                  : 'text-gray-600 dark:text-gray-300 border-transparent hover:border-green-600/50 dark:hover:border-green-500/50 hover:text-green-800 dark:hover:text-green-400'
                 }`
               }
             >
