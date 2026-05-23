@@ -141,10 +141,132 @@ Single company: **Elite Windows** (window/door installation). Jobs move through 
 ### Drawer/panel pattern
 Selecting a job/quote/order opens a detail view — on desktop (`useIsDesktop` hook, breakpoint 1024px) it renders as a side panel; on mobile it renders as a bottom drawer. Both use the same component with an `isDesktop` prop.
 
+All three drawers share a common input style constant defined locally:
+```js
+const inputCls = "w-full px-3 py-2.5 bg-surface-input border border-edge-input rounded-lg text-sm text-ink outline-none focus:border-green-500/55 transition-colors"
+```
+
 ### Auth / identity
 - Single shared password (`elite2026`) — no per-user Supabase Auth
 - On login the user enters their name; it's stored in `localStorage` and shown in the sidebar
 - `lockApp()` in `PasswordGate.jsx` clears both localStorage keys and reloads the page
+
+### Theme system — CSS custom property tokens
+
+Dark/light mode is implemented via CSS custom properties, **not** scattered `dark:` Tailwind variants. This prevents FOUC and makes the glass surfaces work correctly in light mode.
+
+**How it works:**
+
+1. `src/index.css` defines all design tokens as CSS variables in `:root` (light) and `.dark` (overrides):
+   ```css
+   :root  { --surface: rgba(255,255,255,0.40); --ink: #111827; ... }
+   .dark  { --surface: rgba(255,255,255,0.05); --ink: #ffffff; ... }
+   ```
+
+2. Tokens are registered as Tailwind utilities via `@theme inline`:
+   ```css
+   @theme inline {
+     --color-surface: var(--surface);
+     --color-ink:     var(--ink);
+     /* ... */
+   }
+   ```
+   This makes Tailwind generate `bg-surface { background-color: var(--surface); }` — the CSS variable resolves at paint time from the active `.dark` class, no JS needed.
+
+3. The page background is set directly on `html`:
+   ```css
+   html { background: var(--page-bg); }
+   ```
+   Light: `linear-gradient(135deg, #f9fafb 0%, #f0fdf4 100%)` (subtle green-grey gradient)  
+   Dark:  `#0f0f16` (deep near-black)  
+   This gives the glass cards something to blur against in both modes.
+
+4. **FOUC prevention** — `index.html` has a blocking inline script that runs before first paint:
+   ```html
+   <script>
+     (function(){
+       try{
+         var t=localStorage.getItem('tuesday-theme');
+         if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches))
+           document.documentElement.classList.add('dark');
+       }catch(e){}
+     })();
+   </script>
+   ```
+   This must stay before the `<link>` tag that loads the CSS.
+
+**Token reference — key classes:**
+
+| Category   | Tailwind class              | Usage |
+|------------|-----------------------------|-------|
+| Surfaces   | `bg-surface`                | Table/card base |
+|            | `bg-surface-raised`         | Summary cards |
+|            | `bg-surface-bar`            | Topbar / nav |
+|            | `bg-surface-dim`            | Search bar strip |
+|            | `bg-surface-input`          | Text inputs |
+|            | `bg-surface-card`           | Kanban cards |
+|            | `bg-surface-drawer`         | Desktop drawer |
+|            | `bg-surface-drawer-mob`     | Mobile bottom drawer |
+|            | `bg-surface-nav`            | Mobile bottom nav |
+|            | `bg-surface-selected`       | Active table row |
+|            | `bg-surface-hover`          | Even-row hover |
+|            | `bg-surface-hover-b`        | Odd-row hover |
+|            | `bg-surface-chip`           | Tag/chip elements |
+|            | `bg-drag-handle`            | Mobile drag handle |
+|            | `bg-surface-close`          | Drawer close button |
+| Borders    | `border-edge`               | Default border |
+|            | `border-edge-hi`            | Card/panel border |
+|            | `border-edge-dim`           | Subtle separator |
+|            | `border-edge-input`         | Input border |
+|            | `border-edge-chip`          | Chip border |
+|            | `border-edge-nav`           | Nav border |
+| Text       | `text-ink`                  | Primary text |
+|            | `text-ink-soft`             | Secondary text |
+|            | `text-ink-muted`            | Tertiary / labels |
+|            | `text-ink-faint`            | Disabled / timestamps |
+|            | `text-ink-hover`            | Hover text |
+|            | `text-ink-body`             | Body copy |
+|            | `placeholder:text-ink-placeholder` | Input placeholders |
+|            | `bg-ink-dot`                | Status dot (inactive) |
+| Gate       | `bg-gate-bg/card/input`     | PasswordGate only |
+|            | `border-gate-border`        | PasswordGate only |
+| Toggle     | `bg-toggle-pill`            | ThemeToggle pill |
+|            | `bg-toggle-thumb`           | ThemeToggle thumb |
+
+**Rule:** `dark:` variants are only used for intentional semantic color differences (status badge hues, accent greens/reds). All surface/border/text switches go through the token system above.
+
+**ThemeContext / useTheme:**
+- `src/context/ThemeContext.jsx` provides `{ theme, setTheme }` via `ThemeContext`
+- `src/hooks/useTheme.js` manages `localStorage` ('tuesday-theme') and syncs the `.dark` class on `<html>`
+- Three values: `'light'`, `'dark'`, `'auto'` (respects `prefers-color-scheme`)
+- `ThemeToggle` component in the topbar renders a 3-way pill toggle
+
+### Toast notifications
+
+`src/context/ToastContext.jsx` provides a `showToast(message, type)` function via React context:
+- `type` is `'success'` (default) or `'error'`
+- Toasts auto-dismiss after 3 seconds
+- Use `useToast()` hook in any component; call `showToast('Message')` or `showToast('Oops', 'error')`
+- Rendered in a fixed overlay at top-right, `z-[100]`
+
+### Cross-page navigation with open state
+
+To navigate to another page and open a specific drawer immediately, pass state via React Router:
+```js
+navigate('/quotes', { state: { openQuoteId: id } })
+navigate('/orders', { state: { openOrderId: id } })
+```
+
+Each destination page reads `location.state` in a `useEffect` guarded by a `useRef(false)` flag so the drawer only opens once even if `orders`/`quotes` re-renders:
+```js
+const didOpen = useRef(false)
+useEffect(() => {
+  if (!loading && location.state?.openOrderId && !didOpen.current) {
+    const o = orders.find(x => x.id === location.state.openOrderId)
+    if (o) { didOpen.current = true; openDrawer(o) }
+  }
+}, [orders, loading])
+```
 
 ### Environment
 ```
