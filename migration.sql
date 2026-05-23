@@ -461,7 +461,22 @@ create trigger on_quote_accepted
   for each row execute function handle_quote_accepted();
 
 
--- ── Step 13: Enable realtime on new tables ────────────────────
+-- ── Step 13a: Disable RLS on all new tables ──────────────────
+-- This app uses a shared password gate (not Supabase Auth), so RLS
+-- is disabled to match the old schema behaviour.
+
+alter table customers   disable row level security;
+alter table addresses   disable row level security;
+alter table jobs        disable row level security;
+alter table quotes      disable row level security;
+alter table quote_items disable row level security;
+alter table orders      disable row level security;
+alter table order_items disable row level security;
+alter table events      disable row level security;
+alter table comments    disable row level security;
+
+
+-- ── Step 13b: Enable realtime on new tables ───────────────────
 
 alter publication supabase_realtime add table customers;
 alter publication supabase_realtime add table addresses;
