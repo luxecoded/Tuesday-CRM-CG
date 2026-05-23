@@ -4,8 +4,8 @@ import { ThemeProvider } from './context/ThemeContext'
 import PasswordGate, { isUnlocked } from './components/PasswordGate'
 import Layout from './components/Layout'
 import Pipeline from './pages/Pipeline'
-import Quotes from './pages/Quotes'
-import Orders from './pages/Orders'
+import Quotes   from './pages/Quotes'
+import Orders   from './pages/Orders'
 
 export default function App() {
   const [unlocked, setUnlocked] = useState(isUnlocked())

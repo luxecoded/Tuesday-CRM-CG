@@ -1,93 +1,90 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-// Sync quote customer details into the contacts table.
-// Matching priority: email → phone → name.
-// Only fills in blank fields on existing contacts — never overwrites.
-async function syncContact(quote) {
-  const name  = (quote.customerName   || '').trim()
-  const email = (quote.email          || '').trim().toLowerCase()
-  const phone = (quote.contactNumber  || '').trim()
+const SELECT = `
+  *,
+  jobs (
+    title,
+    customer_id,
+    customers ( full_name ),
+    address_id,
+    addresses ( line1, city )
+  ),
+  quote_items (*)
+`
 
-  if (!name) return  // nothing to sync without a name
-
-  // --- find existing contact ---
-  let existing = null
-
-  if (!existing && email) {
-    const { data } = await supabase
-      .from('contacts').select('*').ilike('email', email).maybeSingle()
-    if (data) existing = data
-  }
-
-  if (!existing && phone) {
-    const { data } = await supabase
-      .from('contacts').select('*').eq('phone', phone).maybeSingle()
-    if (data) existing = data
-  }
-
-  if (!existing) {
-    const { data } = await supabase
-      .from('contacts').select('*').ilike('name', name).maybeSingle()
-    if (data) existing = data
-  }
-
-  if (existing) {
-    // Fill in any fields that are currently blank
-    const updates = {}
-    if (!existing.name    && name)              updates.name    = name
-    if (!existing.email   && email)             updates.email   = email
-    if (!existing.phone   && phone)             updates.phone   = phone
-    if (!existing.company)                      updates.company = 'Elite Windows'
-
-    if (Object.keys(updates).length > 0) {
-      await supabase.from('contacts').update(updates).eq('id', existing.id)
-    }
-  } else {
-    // Create a new contact record
-    const id = 'r' + Math.random().toString(36).slice(2, 14)
-    await supabase.from('contacts').insert({
-      id,
-      name,
-      email:   email || null,
-      phone:   phone || null,
-      company: 'Elite Windows',
-    })
+function fromItemCloud(i) {
+  return {
+    id:          i.id,
+    productName: i.product_name   || '',
+    quantity:    i.quantity       || 1,
+    width:       i.width          || '',
+    height:      i.height         || '',
+    frameColour: i.frame_colour   || '',
+    glassType:   i.glass_type     || '',
+    supplierCost: i.supplier_cost || 0,
+    salePrice:   i.sale_price     || 0,
   }
 }
 
 function fromCloud(d) {
   return {
-    id:                   d.id,
-    dealId:               d.deal_id               || '',
-    ewtQuoteRef:          d.ewt_quote_ref         || '',
-    customerName:         d.customer_name         || '',
-    address:              d.address               || '',
-    contactNumber:        d.contact_number        || '',
-    email:                d.email                 || '',
-    origin:               d.origin                || '',
-    options:              Array.isArray(d.options) ? d.options : [],
-    sentToSupplier:       d.sent_to_supplier      || false,
-    quoteSentToCustomer:  d.quote_sent_to_customer || false,
-    response:             d.response              || 'Waiting',
-    createdAt:            d.created_at,
+    id:                d.id,
+    jobId:             d.job_id              || '',
+    jobTitle:          d.jobs?.title         || '',
+    customerName:      d.jobs?.customers?.full_name || '',
+    addressLine1:      d.jobs?.addresses?.line1     || '',
+    addressCity:       d.jobs?.addresses?.city      || '',
+    ewtQuoteRef:       d.ewt_quote_ref       || '',
+    origin:            d.origin              || '',
+    supplierName:      d.supplier_name       || '',
+    supplierReference: d.supplier_reference  || '',
+    ewtValue:          d.ewt_value           || 0,
+    supplierValue:     d.supplier_value      || 0,
+    total:             d.total               || 0,
+    status:            d.status              || 'draft',
+    sentToSupplier:    d.sent_to_supplier    || false,
+    sentToCustomer:    d.sent_to_customer    || false,
+    items:             (d.quote_items || []).map(fromItemCloud),
+    createdAt:         d.created_at,
   }
 }
 
 function toCloud(d) {
   return {
-    deal_id:                d.dealId              || null,
-    ewt_quote_ref:          d.ewtQuoteRef         || null,
-    customer_name:          d.customerName        || null,
-    address:                d.address             || null,
-    contact_number:         d.contactNumber       || null,
-    email:                  d.email               || null,
-    origin:                 d.origin              || null,
-    options:                d.options             || [],
-    sent_to_supplier:       d.sentToSupplier      || false,
-    quote_sent_to_customer: d.quoteSentToCustomer || false,
-    response:               d.response            || 'Waiting',
+    job_id:             d.jobId             || null,
+    ewt_quote_ref:      d.ewtQuoteRef       || null,
+    origin:             d.origin            || null,
+    supplier_name:      d.supplierName      || null,
+    supplier_reference: d.supplierReference || null,
+    ewt_value:          d.ewtValue          || 0,
+    supplier_value:     d.supplierValue     || 0,
+    total:              d.total             || 0,
+    status:             d.status            || 'draft',
+    sent_to_supplier:   d.sentToSupplier    || false,
+    sent_to_customer:   d.sentToCustomer    || false,
+    updated_at:         new Date().toISOString(),
   }
+}
+
+function itemToCloud(item, quoteId) {
+  return {
+    quote_id:     quoteId,
+    product_name: item.productName  || 'Item',
+    quantity:     item.quantity     || 1,
+    width:        item.width        || null,
+    height:       item.height       || null,
+    frame_colour: item.frameColour  || null,
+    glass_type:   item.glassType    || null,
+    supplier_cost: item.supplierCost || 0,
+    sale_price:   item.salePrice    || 0,
+  }
+}
+
+function calcTotals(items) {
+  const ewtValue      = items.reduce((s, i) => s + (i.salePrice    || 0) * (i.quantity || 1), 0)
+  const supplierValue = items.reduce((s, i) => s + (i.supplierCost || 0) * (i.quantity || 1), 0)
+  return { ewtValue, supplierValue, total: ewtValue + supplierValue }
 }
 
 export function useQuotes() {
@@ -100,39 +97,64 @@ export function useQuotes() {
     const channel = supabase
       .channel('public:quotes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, fetchQuotes)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_items' }, fetchQuotes)
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [])
 
   async function fetchQuotes() {
-    const { data, error } = await supabase.from('quotes').select('*').order('created_at', { ascending: false })
+    const { data, error } = await supabase
+      .from('quotes')
+      .select(SELECT)
+      .order('created_at', { ascending: false })
     if (error) { setError(error.message); setLoading(false); return }
     setQuotes((data || []).map(fromCloud))
     setLoading(false)
   }
 
+  async function saveItems(quoteId, items) {
+    await supabase.from('quote_items').delete().eq('quote_id', quoteId)
+    if (items.length > 0) {
+      const { error } = await supabase
+        .from('quote_items')
+        .insert(items.map(i => itemToCloud(i, quoteId)))
+      if (error) throw error
+    }
+  }
+
   async function createQuote(quote) {
-    const payload = toCloud(quote)
-    const { data, error } = await supabase.from('quotes').insert(payload).select().single()
+    const totals  = calcTotals(quote.items || [])
+    const payload = { ...toCloud(quote), ...totals }
+    const { data, error } = await supabase
+      .from('quotes')
+      .insert(payload)
+      .select(SELECT)
+      .single()
     if (error) throw error
-    const created = fromCloud(data)
-    setQuotes(prev => [created, ...prev])
-    syncContact(quote).catch(() => {})   // fire-and-forget — never blocks the save
-    return created
+    await saveItems(data.id, quote.items || [])
+    const full = await fetchOne(data.id)
+    setQuotes(prev => [full, ...prev])
+    return full
   }
 
   async function updateQuote(updated) {
-    setQuotes(prev => prev.map(q => q.id === updated.id ? updated : q))
-    const payload = { ...toCloud(updated), id: updated.id }
+    const totals  = calcTotals(updated.items || [])
+    const payload = { ...toCloud(updated), ...totals, id: updated.id }
     const { error } = await supabase.from('quotes').upsert(payload)
     if (error) { fetchQuotes(); throw error }
-    syncContact(updated).catch(() => {}) // fire-and-forget — never blocks the save
+    await saveItems(updated.id, updated.items || [])
+    fetchQuotes()
   }
 
   async function deleteQuote(id) {
     setQuotes(prev => prev.filter(q => q.id !== id))
     const { error } = await supabase.from('quotes').delete().eq('id', id)
     if (error) { fetchQuotes(); throw error }
+  }
+
+  async function fetchOne(id) {
+    const { data } = await supabase.from('quotes').select(SELECT).eq('id', id).single()
+    return data ? fromCloud(data) : null
   }
 
   return { quotes, loading, error, createQuote, updateQuote, deleteQuote }
