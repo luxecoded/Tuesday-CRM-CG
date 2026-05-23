@@ -14,8 +14,8 @@ function timeAgo(iso) {
 
 export default function CommentsSection({ parentType, parentId }) {
   const { comments, loading, addComment, deleteComment } = useComments(parentType, parentId)
-  const [text, setText]       = useState('')
-  const [saving, setSaving]   = useState(false)
+  const [text, setText]     = useState('')
+  const [saving, setSaving] = useState(false)
 
   if (!parentId) return null
 
@@ -34,18 +34,17 @@ export default function CommentsSection({ parentType, parentId }) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+      <label className="block text-xs font-bold text-ink-muted uppercase tracking-wide">
         Comments
       </label>
 
-      {/* Input */}
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           type="text"
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="Add a comment…"
-          className="flex-1 px-3 py-2 bg-white/50 dark:bg-white/8 border border-white/50 dark:border-white/15 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
+          className="flex-1 px-3 py-2 bg-surface-input border border-edge-input rounded-lg text-sm text-ink placeholder:text-ink-placeholder outline-none focus:border-green-500/55 transition-colors"
         />
         <button
           type="submit"
@@ -56,18 +55,17 @@ export default function CommentsSection({ parentType, parentId }) {
         </button>
       </form>
 
-      {/* List */}
       {loading ? (
-        <p className="text-xs text-gray-400 dark:text-gray-500">Loading…</p>
+        <p className="text-xs text-ink-faint">Loading…</p>
       ) : comments.length === 0 ? (
-        <p className="text-xs text-gray-400 dark:text-gray-500 italic">No comments yet</p>
+        <p className="text-xs text-ink-faint italic">No comments yet</p>
       ) : (
         <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
           {comments.map(c => (
             <div key={c.id} className="flex items-start gap-2 group">
-              <div className="flex-1 bg-white/30 dark:bg-white/5 border border-white/30 dark:border-white/10 rounded-lg px-3 py-2">
-                <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">{c.comment}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{timeAgo(c.createdAt)}</p>
+              <div className="flex-1 bg-surface-chip border border-edge-chip rounded-lg px-3 py-2">
+                <p className="text-sm text-ink-body whitespace-pre-wrap break-words">{c.comment}</p>
+                <p className="text-xs text-ink-faint mt-1">{timeAgo(c.createdAt)}</p>
               </div>
               <button
                 onClick={() => deleteComment(c.id)}

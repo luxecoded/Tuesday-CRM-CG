@@ -5,13 +5,13 @@ import CommentsSection from './CommentsSection'
 const STATUS_OPTIONS = ['draft', 'sent', 'accepted', 'declined']
 const STATUS_LABELS  = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' }
 const STATUS_STYLES  = {
-  draft:    'bg-gray-400/20 text-gray-600 dark:bg-gray-400/15 dark:text-gray-300',
-  sent:     'bg-amber-400/20 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-  accepted: 'bg-green-400/20 text-green-700 dark:bg-green-400/15 dark:text-green-300',
-  declined: 'bg-red-400/20 text-red-700 dark:bg-red-400/15 dark:text-red-300',
+  draft:    'bg-gray-400/20 text-gray-600 dark:text-gray-300',
+  sent:     'bg-amber-400/20 text-amber-700 dark:text-amber-300',
+  accepted: 'bg-green-400/20 text-green-700 dark:text-green-300',
+  declined: 'bg-red-400/20 text-red-700 dark:text-red-300',
 }
 
-const inputCls = "w-full px-3 py-2.5 bg-white/50 dark:bg-white/8 border border-white/50 dark:border-white/15 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
+const inputCls = "w-full px-3 py-2.5 bg-surface-input border border-edge-input rounded-lg text-sm text-ink outline-none focus:border-green-500/55 transition-colors"
 
 function fmt(val) {
   if (!val && val !== 0) return '—'
@@ -104,16 +104,16 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   const content = (
     <>
       {/* Header */}
-      <div className="flex items-start justify-between px-5 py-4 border-b border-white/25 dark:border-white/10 flex-shrink-0">
+      <div className="flex items-start justify-between px-5 py-4 border-b border-edge flex-shrink-0">
         <div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-bold text-ink">
             {isNew ? 'New Quote' : (form.ewtQuoteRef || form.customerName || 'Quote')}
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-ink-muted">
             {linkedJob ? linkedJob.title || linkedJob.customerName : form.customerName || ''}
           </p>
         </div>
-        <button onClick={handleClose} className="w-8 h-8 rounded-full bg-white/40 dark:bg-white/10 hover:bg-white/60 dark:hover:bg-white/20 flex items-center justify-center text-gray-700 dark:text-gray-300 transition-colors flex-shrink-0 mt-0.5">✕</button>
+        <button onClick={handleClose} className="w-8 h-8 rounded-full bg-surface-close hover:bg-surface-close-hover flex items-center justify-center text-ink-soft transition-colors flex-shrink-0 mt-0.5">✕</button>
       </div>
 
       {/* Body */}
@@ -121,14 +121,14 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
         {/* Status */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Status</label>
+          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">Status</label>
           <div className="flex gap-2">
             {STATUS_OPTIONS.map(s => (
               <button key={s} onClick={() => set('status', s)}
                 className={`flex-1 py-2 rounded-lg text-xs font-semibold border transition-all
                   ${form.status === s
                     ? `${STATUS_STYLES[s]} border-current shadow-sm`
-                    : 'bg-white/20 dark:bg-white/5 border-white/30 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-white/50'
+                    : 'bg-surface-dim border-edge-chip text-ink-muted hover:border-white/50'
                   }`}>
                 {STATUS_LABELS[s]}
               </button>
@@ -139,12 +139,12 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
           )}
         </div>
 
-        <div className="border-t border-white/20 dark:border-white/8" />
+        <div className="border-t border-edge-dim" />
 
         {/* Job link */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Linked Job</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide">Linked Job</label>
             {linkedJob && (
               <button
                 type="button"
@@ -164,47 +164,47 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
             ))}
           </select>
           {linkedJob?.addressLine1 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">{linkedJob.addressLine1}{linkedJob.addressCity ? `, ${linkedJob.addressCity}` : ''}</p>
+            <p className="text-xs text-ink-muted mt-1 px-1">{linkedJob.addressLine1}{linkedJob.addressCity ? `, ${linkedJob.addressCity}` : ''}</p>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">EWT Quote Ref</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">EWT Quote Ref</label>
             <input type="text" value={form.ewtQuoteRef} onChange={e => set('ewtQuoteRef', e.target.value)} placeholder="e.g. EWT-001" className={inputCls} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Origin</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Origin</label>
             <input type="text" value={form.origin} onChange={e => set('origin', e.target.value)} placeholder="e.g. Referral" className={inputCls} />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Supplier Name</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Supplier Name</label>
             <input type="text" value={form.supplierName} onChange={e => set('supplierName', e.target.value)} placeholder="Supplier" className={inputCls} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Supplier Ref</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Supplier Ref</label>
             <input type="text" value={form.supplierReference} onChange={e => set('supplierReference', e.target.value)} placeholder="Ref no." className={inputCls} />
           </div>
         </div>
 
-        <div className="border-t border-white/20 dark:border-white/8" />
+        <div className="border-t border-edge-dim" />
 
         {/* Items */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-sm font-bold text-gray-900 dark:text-white">Line Items</h3>
+              <h3 className="text-sm font-bold text-ink">Line Items</h3>
               {form.items.length > 0 && (
                 <div className="flex gap-3 mt-1">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Sale <span className="font-semibold text-gray-900 dark:text-white">{fmt(ewtTotal)}</span>
+                  <span className="text-xs text-ink-muted">
+                    Sale <span className="font-semibold text-ink">{fmt(ewtTotal)}</span>
                   </span>
                   {supplierTotal > 0 && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      Cost <span className="font-semibold text-gray-700 dark:text-gray-300">{fmt(supplierTotal)}</span>
+                    <span className="text-xs text-ink-muted">
+                      Cost <span className="font-semibold text-ink-soft">{fmt(supplierTotal)}</span>
                     </span>
                   )}
                 </div>
@@ -217,7 +217,7 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
           </div>
 
           {form.items.length === 0 && (
-            <div className="text-center py-6 rounded-xl border border-dashed border-white/30 dark:border-white/15 text-gray-400 dark:text-gray-500 text-xs">
+            <div className="text-center py-6 rounded-xl border border-dashed border-edge-input text-ink-faint text-xs">
               No items yet — click <strong>+ Add Item</strong>
             </div>
           )}
@@ -227,26 +227,26 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
               const lineSale = (item.salePrice    || 0) * (item.quantity || 1)
               const lineCost = (item.supplierCost || 0) * (item.quantity || 1)
               return (
-                <div key={item.id} className="bg-white/30 dark:bg-white/5 border border-white/40 dark:border-white/12 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-white/20 dark:hover:bg-white/5 transition-colors"
+                <div key={item.id} className="bg-surface-chip border border-edge-hi rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-surface-hover transition-colors"
                     onClick={() => toggleExpanded(item.id)}>
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{item.productName || `Item ${idx + 1}`}</span>
-                      {item.quantity > 1 && <span className="text-xs text-gray-400 flex-shrink-0">×{item.quantity}</span>}
-                      {lineSale > 0 && <span className="text-xs text-gray-500 dark:text-gray-400 bg-white/40 dark:bg-white/8 px-2 py-0.5 rounded-full font-medium flex-shrink-0">{fmt(lineSale)}</span>}
-                      {lineCost > 0 && <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">cost {fmt(lineCost)}</span>}
+                      <span className="text-xs font-bold text-ink truncate">{item.productName || `Item ${idx + 1}`}</span>
+                      {item.quantity > 1 && <span className="text-xs text-ink-faint flex-shrink-0">×{item.quantity}</span>}
+                      {lineSale > 0 && <span className="text-xs text-ink-muted bg-surface-input px-2 py-0.5 rounded-full font-medium flex-shrink-0">{fmt(lineSale)}</span>}
+                      {lineCost > 0 && <span className="text-xs text-ink-faint flex-shrink-0">cost {fmt(lineCost)}</span>}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button onClick={e => { e.stopPropagation(); removeItem(item.id) }}
                         className="w-6 h-6 rounded-full bg-red-500/10 hover:bg-red-500/25 flex items-center justify-center text-red-500 text-xs transition-colors">✕</button>
-                      <span className="text-gray-400 text-xs">{expanded[item.id] ? '▲' : '▼'}</span>
+                      <span className="text-ink-faint text-xs">{expanded[item.id] ? '▲' : '▼'}</span>
                     </div>
                   </div>
 
                   {expanded[item.id] && (
-                    <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/20 dark:border-white/8">
+                    <div className="px-4 pb-4 pt-1 space-y-3 border-t border-edge-dim">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Product Name</label>
+                        <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Product Name</label>
                         <input type="text" value={item.productName}
                           onChange={e => setItem(item.id, 'productName', e.target.value)}
                           placeholder="e.g. uPVC casement window" className={inputCls} />
@@ -254,19 +254,19 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
                       <div className="grid grid-cols-3 gap-2">
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Qty</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Qty</label>
                           <input type="number" min="1" value={item.quantity}
                             onChange={e => setItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
                             className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">W (mm)</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">W (mm)</label>
                           <input type="number" value={item.width}
                             onChange={e => setItem(item.id, 'width', e.target.value)}
                             placeholder="—" className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">H (mm)</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">H (mm)</label>
                           <input type="number" value={item.height}
                             onChange={e => setItem(item.id, 'height', e.target.value)}
                             placeholder="—" className={inputCls} />
@@ -275,13 +275,13 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Frame Colour</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Frame Colour</label>
                           <input type="text" value={item.frameColour}
                             onChange={e => setItem(item.id, 'frameColour', e.target.value)}
                             placeholder="e.g. White" className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Glass Type</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Glass Type</label>
                           <input type="text" value={item.glassType}
                             onChange={e => setItem(item.id, 'glassType', e.target.value)}
                             placeholder="e.g. Double" className={inputCls} />
@@ -290,13 +290,13 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Sale Price (£)</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Sale Price (£)</label>
                           <input type="number" value={item.salePrice}
                             onChange={e => setItem(item.id, 'salePrice', parseFloat(e.target.value) || 0)}
                             className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Supplier Cost (£)</label>
+                          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Supplier Cost (£)</label>
                           <input type="number" value={item.supplierCost}
                             onChange={e => setItem(item.id, 'supplierCost', parseFloat(e.target.value) || 0)}
                             className={inputCls} />
@@ -310,25 +310,25 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
           </div>
         </div>
 
-        <div className="border-t border-white/20 dark:border-white/8" />
+        <div className="border-t border-edge-dim" />
 
         {/* Status checkboxes */}
         <div className="space-y-2.5">
           <label className="flex items-center gap-3 cursor-pointer">
             <input type="checkbox" checked={form.sentToSupplier} onChange={e => set('sentToSupplier', e.target.checked)} className="w-4 h-4 accent-green-500" />
-            <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Sent to Supplier</span>
+            <span className="text-sm text-ink-soft font-medium">Sent to Supplier</span>
           </label>
           <label className="flex items-center gap-3 cursor-pointer">
             <input type="checkbox" checked={form.sentToCustomer} onChange={e => set('sentToCustomer', e.target.checked)} className="w-4 h-4 accent-green-500" />
-            <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Sent to Customer</span>
+            <span className="text-sm text-ink-soft font-medium">Sent to Customer</span>
           </label>
         </div>
 
-        <div className="border-t border-white/20 dark:border-white/8" />
+        <div className="border-t border-edge-dim" />
 
         <CommentsSection parentType="quote" parentId={form.id} />
 
-        <div className="border-t border-white/20 dark:border-white/8" />
+        <div className="border-t border-edge-dim" />
 
         {/* Actions */}
         <div className="flex gap-2 pb-1">
@@ -350,7 +350,7 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   if (isDesktop) {
     return (
       <div className={`flex-shrink-0 overflow-hidden transition-[width] duration-300 ease-out ${open ? 'w-[28rem]' : 'w-0'}`}>
-        <div className="w-[28rem] h-full border-l border-white/25 dark:border-white/10 bg-white/55 dark:bg-white/10 backdrop-blur-2xl flex flex-col">
+        <div className="w-[28rem] h-full border-l border-edge bg-surface-drawer backdrop-blur-2xl flex flex-col">
           {content}
         </div>
       </div>
@@ -360,8 +360,8 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   return (
     <>
       <div className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0'}`} onClick={handleClose} />
-      <div className={`fixed bottom-0 left-0 right-0 bg-white/70 dark:bg-gray-900/95 backdrop-blur-2xl rounded-t-2xl z-50 flex flex-col max-h-[90vh] transition-all duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}>
-        <div className="w-9 h-1 bg-white/50 dark:bg-white/20 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+      <div className={`fixed bottom-0 left-0 right-0 bg-surface-drawer-mob backdrop-blur-2xl rounded-t-2xl z-50 flex flex-col max-h-[90vh] transition-all duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className="w-9 h-1 bg-drag-handle rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
         {content}
       </div>
     </>

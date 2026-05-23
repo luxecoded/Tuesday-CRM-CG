@@ -6,12 +6,10 @@ export default function ThemeToggle({ theme, setTheme }) {
   // Single click = set light/dark. Double click = auto mode.
   const handleClick = (value) => {
     if (timerRef.current) {
-      // Second click within window — double-click → auto
       clearTimeout(timerRef.current)
       timerRef.current = null
       setTheme('auto')
     } else {
-      // Apply immediately; open a window in case of double-click
       setTheme(value)
       timerRef.current = setTimeout(() => {
         timerRef.current = null
@@ -23,20 +21,18 @@ export default function ThemeToggle({ theme, setTheme }) {
   const isLight = theme === 'light'
   const isDark  = theme === 'dark'
 
-  // When in auto mode, detect which icon should look "active"
   const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const autoActive = isAuto ? (systemDark ? 'dark' : 'light') : null
 
   const sunActive  = isLight || autoActive === 'light'
   const moonActive = isDark  || autoActive === 'dark'
-
   const slideRight = moonActive
 
   return (
-    <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-full p-0.5 gap-0.5 relative">
+    <div className="flex items-center bg-toggle-pill rounded-full p-0.5 gap-0.5 relative">
       {/* Sliding thumb */}
       <div
-        className="absolute top-0.5 left-0.5 w-8 h-8 rounded-full bg-white dark:bg-gray-600 shadow-sm transition-transform duration-200 ease-in-out pointer-events-none"
+        className="absolute top-0.5 left-0.5 w-8 h-8 rounded-full bg-toggle-thumb shadow-sm transition-transform duration-200 ease-in-out pointer-events-none"
         style={{ transform: `translateX(${slideRight ? 34 : 0}px)` }}
       />
 
@@ -45,7 +41,7 @@ export default function ThemeToggle({ theme, setTheme }) {
         onClick={() => handleClick('light')}
         title="Light (double-click for Auto)"
         className={`relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-base transition-colors duration-200
-          ${sunActive ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
+          ${sunActive ? 'text-amber-500' : 'text-ink-faint hover:text-ink-muted'}`}
       >
         ☀️
         {isAuto && autoActive === 'light' && (
@@ -58,7 +54,7 @@ export default function ThemeToggle({ theme, setTheme }) {
         onClick={() => handleClick('dark')}
         title="Dark (double-click for Auto)"
         className={`relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-base transition-colors duration-200
-          ${moonActive ? 'text-green-500' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
+          ${moonActive ? 'text-green-500' : 'text-ink-faint hover:text-ink-muted'}`}
       >
         🌙
         {isAuto && autoActive === 'dark' && (

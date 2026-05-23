@@ -29,7 +29,7 @@ function StatusDots({ order }) {
     <div className="flex gap-1">
       {flags.map(f => (
         <span key={f.key} title={f.label}
-          className={`w-2 h-2 rounded-full flex-shrink-0 ${order[f.key] ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
+          className={`w-2 h-2 rounded-full flex-shrink-0 ${order[f.key] ? 'bg-green-500' : 'bg-ink-dot'}`} />
       ))}
     </div>
   )
@@ -41,7 +41,7 @@ export default function Orders() {
   const isDesktop = useIsDesktop()
   const showToast = useToast()
 
-  const [search, setSearch]           = useState('')
+  const [search, setSearch]             = useState('')
   const [selectedOrder, setSelectedOrder] = useState(null)
   const location = useLocation()
   const didOpen  = useRef(false)
@@ -56,10 +56,10 @@ export default function Orders() {
   const filtered = orders.filter(o => {
     const term = search.toLowerCase()
     return !term ||
-      (o.customerName    || '').toLowerCase().includes(term) ||
-      (o.ewtJobRef       || '').toLowerCase().includes(term) ||
-      (o.jobTitle        || '').toLowerCase().includes(term) ||
-      (o.addressLine1    || '').toLowerCase().includes(term)
+      (o.customerName || '').toLowerCase().includes(term) ||
+      (o.ewtJobRef    || '').toLowerCase().includes(term) ||
+      (o.jobTitle     || '').toLowerCase().includes(term) ||
+      (o.addressLine1 || '').toLowerCase().includes(term)
   })
 
   const totalValue     = filtered.reduce((s, o) => s + (o.total || 0), 0)
@@ -79,7 +79,7 @@ export default function Orders() {
   }
 
   if (loading) return (
-    <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400">
+    <div className="flex-1 flex items-center justify-center text-ink-muted">
       <div className="text-center"><div className="text-3xl mb-2 animate-spin">⟳</div><p className="text-sm">Loading orders…</p></div>
     </div>
   )
@@ -95,10 +95,10 @@ export default function Orders() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Topbar */}
-        <div className="bg-white/35 dark:bg-white/5 backdrop-blur-xl border-b border-white/25 dark:border-white/8 px-4 lg:px-6 py-3 flex items-center justify-between flex-shrink-0">
+        <div className="bg-surface-bar backdrop-blur-xl border-b border-edge px-4 lg:px-6 py-3 flex items-center justify-between flex-shrink-0">
           <div>
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Orders</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{filtered.length} orders</p>
+            <h1 className="text-lg font-bold text-ink">Orders</h1>
+            <p className="text-xs text-ink-muted">{filtered.length} orders</p>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -106,43 +106,43 @@ export default function Orders() {
         </div>
 
         {/* Search */}
-        <div className="bg-white/20 dark:bg-white/3 backdrop-blur-md border-b border-white/20 dark:border-white/6 px-4 lg:px-6 py-3 flex-shrink-0">
+        <div className="bg-surface-dim backdrop-blur-md border-b border-edge-dim px-4 lg:px-6 py-3 flex-shrink-0">
           <input
             type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="🔍  Search orders…"
-            className="w-full px-4 py-2.5 bg-white/50 dark:bg-white/7 border border-white/50 dark:border-white/10 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-500/60 dark:placeholder-gray-400 outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
+            className="w-full px-4 py-2.5 bg-surface-input border border-edge-input rounded-full text-sm text-ink placeholder:text-ink-placeholder outline-none focus:border-green-500/55 transition-colors"
           />
         </div>
 
         {/* Summary */}
         <div className="px-4 lg:px-6 pt-3 pb-1 flex-shrink-0">
-          <div className="bg-white/45 dark:bg-white/7 border border-white/35 dark:border-white/10 rounded-2xl px-4 py-3 flex justify-around shadow-sm">
+          <div className="bg-surface-raised border border-edge-hi rounded-2xl px-4 py-3 flex justify-around shadow-sm">
             <div className="text-center">
-              <div className="text-base font-bold text-gray-900 dark:text-white">{filtered.length}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Orders</div>
+              <div className="text-base font-bold text-ink">{filtered.length}</div>
+              <div className="text-xs text-ink-muted mt-0.5">Orders</div>
             </div>
             <div className="text-center">
-              <div className="text-base font-bold text-gray-900 dark:text-white">{fmt(totalValue)}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Total Value</div>
+              <div className="text-base font-bold text-ink">{fmt(totalValue)}</div>
+              <div className="text-xs text-ink-muted mt-0.5">Total Value</div>
             </div>
             <div className="text-center">
               <div className="text-base font-bold text-green-600 dark:text-green-400">{signedOffCount}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Signed Off</div>
+              <div className="text-xs text-ink-muted mt-0.5">Signed Off</div>
             </div>
           </div>
         </div>
 
         {/* Orders list */}
         <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-3 pb-24 lg:pb-6">
-          <div className="bg-white/40 dark:bg-white/7 rounded-2xl border border-white/35 dark:border-white/10 overflow-hidden">
+          <div className="bg-surface rounded-2xl border border-edge-hi overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-black/5 dark:bg-white/3 border-b border-white/20 dark:border-white/8">
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Customer</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Items</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Ref</th>
-                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total</th>
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Progress</th>
+                <tr className="bg-surface-head border-b border-edge-dim">
+                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-ink-muted uppercase tracking-wide">Customer</th>
+                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-ink-muted uppercase tracking-wide hidden sm:table-cell">Items</th>
+                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-ink-muted uppercase tracking-wide hidden md:table-cell">Ref</th>
+                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-ink-muted uppercase tracking-wide">Total</th>
+                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-ink-muted uppercase tracking-wide hidden lg:table-cell">Progress</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,25 +151,25 @@ export default function Orders() {
                     onClick={() => openDrawer(order)}
                     className={`cursor-pointer transition-colors
                       ${selectedOrder?.id === order.id
-                        ? 'bg-green-400/15 dark:bg-green-500/10'
+                        ? 'bg-surface-selected'
                         : i % 2 === 0
-                          ? 'bg-transparent hover:bg-white/20 dark:hover:bg-white/5'
-                          : 'bg-white/15 dark:bg-white/3 hover:bg-white/25 dark:hover:bg-white/6'
+                          ? 'bg-transparent hover:bg-surface-hover'
+                          : 'bg-surface-row hover:bg-surface-hover-b'
                       }`}>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900 dark:text-white">{order.customerName || '—'}</div>
-                      {order.jobTitle && <div className="text-xs text-gray-500 dark:text-gray-400">{order.jobTitle}</div>}
+                      <div className="font-medium text-ink">{order.customerName || '—'}</div>
+                      {order.jobTitle && <div className="text-xs text-ink-muted">{order.jobTitle}</div>}
                     </td>
-                    <td className="px-4 py-3 hidden sm:table-cell text-xs text-gray-500 dark:text-gray-400 max-w-[180px] truncate">{itemsSummary(order.items)}</td>
-                    <td className="px-4 py-3 hidden md:table-cell text-xs text-gray-500 dark:text-gray-400">{order.ewtJobRef || '—'}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">{fmt(order.total)}</td>
+                    <td className="px-4 py-3 hidden sm:table-cell text-xs text-ink-muted max-w-[180px] truncate">{itemsSummary(order.items)}</td>
+                    <td className="px-4 py-3 hidden md:table-cell text-xs text-ink-muted">{order.ewtJobRef || '—'}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-ink">{fmt(order.total)}</td>
                     <td className="px-4 py-3 hidden lg:table-cell"><StatusDots order={order} /></td>
                   </tr>
                 ))}
               </tbody>
             </table>
             {filtered.length === 0 && (
-              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-12 text-ink-muted">
                 <div className="text-3xl mb-2">📦</div>
                 <p className="text-sm">No orders found</p>
               </div>
