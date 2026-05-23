@@ -40,13 +40,13 @@ const BLANK = {
 export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDesktop, jobs = [] }) {
   const isNew    = !quote?.id
   const navigate = useNavigate()
-  const [form, setForm]         = useState(quote || BLANK)
+  const [form, setForm]         = useState({ ...BLANK, ...(quote || {}) })
   const [saving, setSaving]     = useState(false)
   const [open, setOpen]         = useState(false)
   const [expanded, setExpanded] = useState({})
 
   useEffect(() => {
-    const base = quote || BLANK
+    const base = { ...BLANK, ...(quote || {}) }
     setForm(base)
     const exp = {}
     ;(base.items || []).forEach(i => { exp[i.id] = true })

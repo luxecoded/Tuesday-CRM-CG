@@ -93,7 +93,7 @@ export function useJobs() {
     const payload = { ...toCloud(updated), id: updated.id }
     const { data, error } = await supabase.from('jobs').upsert(payload).select(SELECT).single()
     if (error) { fetchJobs(); throw error }
-    const fresh = fromCloud(data)
+    const fresh = data ? fromCloud(data) : updated
     setJobs(prev => prev.map(j => j.id === fresh.id ? fresh : j))
     return fresh
   }

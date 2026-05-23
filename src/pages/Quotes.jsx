@@ -69,8 +69,8 @@ export default function Quotes() {
   const handleSave = async (data) => {
     try {
       if (data.id) {
-        await updateQuote(data)
-        setSelectedQuote(data)
+        const fresh = await updateQuote(data)
+        setSelectedQuote(fresh)
       } else {
         const created = await createQuote(data)
         setIsCreating(false)

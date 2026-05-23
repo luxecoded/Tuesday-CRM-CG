@@ -70,8 +70,8 @@ export default function Orders() {
 
   const handleSave = async (data) => {
     try {
-      await updateOrder(data)
-      setSelectedOrder(data)
+      const fresh = await updateOrder(data)
+      setSelectedOrder(fresh)
       showToast('Order saved')
     } catch {
       showToast('Failed to save order', 'error')

@@ -127,8 +127,11 @@ export function useOrders() {
   async function updateOrder(updated) {
     setOrders(prev => prev.map(o => o.id === updated.id ? updated : o))
     const payload = { ...toCloud(updated), id: updated.id }
-    const { error } = await supabase.from('orders').upsert(payload)
+    const { data, error } = await supabase.from('orders').upsert(payload).select(SELECT).single()
     if (error) { fetchOrders(); throw error }
+    const fresh = data ? fromCloud(data) : updated
+    setOrders(prev => prev.map(o => o.id === fresh.id ? fresh : o))
+    return fresh
   }
 
   async function deleteOrder(id) {

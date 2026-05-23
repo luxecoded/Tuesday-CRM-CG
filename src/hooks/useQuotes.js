@@ -143,7 +143,9 @@ export function useQuotes() {
     const { error } = await supabase.from('quotes').upsert(payload)
     if (error) { fetchQuotes(); throw error }
     await saveItems(updated.id, updated.items || [])
-    fetchQuotes()
+    const fresh = await fetchOne(updated.id)
+    if (fresh) setQuotes(prev => prev.map(q => q.id === fresh.id ? fresh : q))
+    return fresh || updated
   }
 
   async function deleteQuote(id) {
