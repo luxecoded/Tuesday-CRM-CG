@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useToast } from '../context/ToastContext'
 import { useQuotes } from '../hooks/useQuotes'
 import { useJobs } from '../hooks/useJobs'
 import QuoteDrawer from '../components/QuoteDrawer'
@@ -25,11 +27,26 @@ export default function Quotes() {
   const { jobs } = useJobs()
   const { theme, setTheme } = useThemeContext()
   const isDesktop = useIsDesktop()
+  const showToast = useToast()
 
   const [search, setSearch]           = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [selectedQuote, setSelectedQuote] = useState(null)
   const [isCreating, setIsCreating]   = useState(false)
+  const location = useLocation()
+  const didOpen  = useRef(false)
+
+  useEffect(() => {
+    if (loading || didOpen.current) return
+    if (location.state?.openQuoteId) {
+      const q = quotes.find(x => x.id === location.state.openQuoteId)
+      if (q) { didOpen.current = true; openDrawer(q) }
+    } else if (location.state?.newQuoteForJobId) {
+      didOpen.current = true
+      setSelectedQuote(null)
+      setIsCreating(true)
+    }
+  }, [quotes, loading])
 
   const filtered = quotes.filter(q => {
     const matchStatus = statusFilter === 'All' || q.status === statusFilter
@@ -42,7 +59,7 @@ export default function Quotes() {
     return matchStatus && matchSearch
   })
 
-  const totalValue    = filtered.reduce((s, q) => s + (q.total || 0), 0)
+  const totalValue    = filtered.reduce((s, q) => s + (q.ewtValue || 0), 0)
   const acceptedCount = filtered.filter(q => q.status === 'accepted').length
 
   const openDrawer  = quote => { setIsCreating(false); setSelectedQuote(quote) }
@@ -50,13 +67,18 @@ export default function Quotes() {
   const closeDrawer = ()    => { setSelectedQuote(null); setIsCreating(false) }
 
   const handleSave = async (data) => {
-    if (data.id) {
-      await updateQuote(data)
-      setSelectedQuote(data)
-    } else {
-      const created = await createQuote(data)
-      setIsCreating(false)
-      setSelectedQuote(created)
+    try {
+      if (data.id) {
+        await updateQuote(data)
+        setSelectedQuote(data)
+      } else {
+        const created = await createQuote(data)
+        setIsCreating(false)
+        setSelectedQuote(created)
+      }
+      showToast(data.id ? 'Quote saved' : 'Quote created')
+    } catch {
+      showToast('Failed to save quote', 'error')
     }
   }
 
@@ -73,7 +95,7 @@ export default function Quotes() {
   )
 
   const drawerProps = {
-    quote: isCreating ? null : selectedQuote,
+    quote: isCreating ? (location.state?.newQuoteForJobId ? { jobId: location.state.newQuoteForJobId } : null) : selectedQuote,
     onClose: closeDrawer,
     onSave: handleSave,
     onDelete: !isCreating ? deleteQuote : undefined,
@@ -145,7 +167,7 @@ export default function Quotes() {
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Customer</th>
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Job</th>
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Ref</th>
-                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total</th>
+                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Sale / Cost</th>
                   <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
                 </tr>
               </thead>
@@ -163,7 +185,10 @@ export default function Quotes() {
                     <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{q.customerName || '—'}</td>
                     <td className="px-4 py-3 hidden sm:table-cell text-gray-600 dark:text-gray-300 text-xs">{q.jobTitle || '—'}</td>
                     <td className="px-4 py-3 hidden md:table-cell text-gray-500 dark:text-gray-400 text-xs">{q.ewtQuoteRef || '—'}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">{fmt(q.total)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-semibold text-gray-900 dark:text-white">{fmt(q.ewtValue)}</span>
+                      {q.supplierValue > 0 && <span className="block text-xs text-gray-400 dark:text-gray-500">{fmt(q.supplierValue)}</span>}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[q.status] || ''}`}>
                         {STATUS_LABELS[q.status] || q.status}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CommentsSection from './CommentsSection'
 
 const STATUS_OPTIONS = ['draft', 'sent', 'accepted', 'declined']
@@ -37,7 +38,8 @@ const BLANK = {
 }
 
 export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDesktop, jobs = [] }) {
-  const isNew = !quote?.id
+  const isNew    = !quote?.id
+  const navigate = useNavigate()
   const [form, setForm]         = useState(quote || BLANK)
   const [saving, setSaving]     = useState(false)
   const [open, setOpen]         = useState(false)
@@ -84,7 +86,6 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
   const ewtTotal      = (form.items || []).reduce((s, i) => s + (i.salePrice    || 0) * (i.quantity || 1), 0)
   const supplierTotal = (form.items || []).reduce((s, i) => s + (i.supplierCost || 0) * (i.quantity || 1), 0)
-  const grandTotal    = ewtTotal + supplierTotal
 
   const linkedJob = jobs.find(j => j.id === form.jobId)
 
@@ -142,7 +143,18 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
         {/* Job link */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Linked Job</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Linked Job</label>
+            {linkedJob && (
+              <button
+                type="button"
+                onClick={() => navigate('/', { state: { openJobId: linkedJob.id } })}
+                className="text-xs font-semibold text-green-700 dark:text-green-400 hover:underline"
+              >
+                View Job →
+              </button>
+            )}
+          </div>
           <select value={form.jobId || ''} onChange={e => set('jobId', e.target.value)} className={inputCls}>
             <option value="">— None —</option>
             {jobs.map(j => (
@@ -186,10 +198,16 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
             <div>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">Line Items</h3>
               {form.items.length > 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Total: <span className="font-semibold text-gray-900 dark:text-white">{fmt(grandTotal)}</span>
-                  {supplierTotal > 0 && <span className="ml-2 text-gray-400">(Supplier: {fmt(supplierTotal)})</span>}
-                </p>
+                <div className="flex gap-3 mt-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Sale <span className="font-semibold text-gray-900 dark:text-white">{fmt(ewtTotal)}</span>
+                  </span>
+                  {supplierTotal > 0 && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Cost <span className="font-semibold text-gray-700 dark:text-gray-300">{fmt(supplierTotal)}</span>
+                    </span>
+                  )}
+                </div>
               )}
             </div>
             <button onClick={addItem}
@@ -206,7 +224,8 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
 
           <div className="space-y-2">
             {form.items.map((item, idx) => {
-              const lineTotal = ((item.salePrice || 0) + (item.supplierCost || 0)) * (item.quantity || 1)
+              const lineSale = (item.salePrice    || 0) * (item.quantity || 1)
+              const lineCost = (item.supplierCost || 0) * (item.quantity || 1)
               return (
                 <div key={item.id} className="bg-white/30 dark:bg-white/5 border border-white/40 dark:border-white/12 rounded-xl overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-white/20 dark:hover:bg-white/5 transition-colors"
@@ -214,7 +233,8 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{item.productName || `Item ${idx + 1}`}</span>
                       {item.quantity > 1 && <span className="text-xs text-gray-400 flex-shrink-0">×{item.quantity}</span>}
-                      {lineTotal > 0 && <span className="text-xs text-gray-500 dark:text-gray-400 bg-white/40 dark:bg-white/8 px-2 py-0.5 rounded-full font-medium flex-shrink-0">{fmt(lineTotal)}</span>}
+                      {lineSale > 0 && <span className="text-xs text-gray-500 dark:text-gray-400 bg-white/40 dark:bg-white/8 px-2 py-0.5 rounded-full font-medium flex-shrink-0">{fmt(lineSale)}</span>}
+                      {lineCost > 0 && <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">cost {fmt(lineCost)}</span>}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button onClick={e => { e.stopPropagation(); removeItem(item.id) }}

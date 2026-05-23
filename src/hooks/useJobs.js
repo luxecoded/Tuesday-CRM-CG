@@ -59,8 +59,9 @@ export function useJobs() {
   useEffect(() => {
     fetchJobs()
     const channel = supabase
-      .channel('public:jobs')
+      .channel('public:jobs-and-customers')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, fetchJobs)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'customers' }, fetchJobs)
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [])
@@ -90,8 +91,11 @@ export function useJobs() {
   async function updateJob(updated) {
     setJobs(prev => prev.map(j => j.id === updated.id ? updated : j))
     const payload = { ...toCloud(updated), id: updated.id }
-    const { error } = await supabase.from('jobs').upsert(payload)
+    const { data, error } = await supabase.from('jobs').upsert(payload).select(SELECT).single()
     if (error) { fetchJobs(); throw error }
+    const fresh = fromCloud(data)
+    setJobs(prev => prev.map(j => j.id === fresh.id ? fresh : j))
+    return fresh
   }
 
   async function deleteJob(id) {

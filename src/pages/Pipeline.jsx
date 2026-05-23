@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useToast } from '../context/ToastContext'
 import { useJobs, STATUS_ORDER, STATUS_LABELS, STATUS_COLORS } from '../hooks/useJobs'
 import { useCustomers } from '../hooks/useCustomers'
 import JobDrawer from '../components/JobDrawer'
@@ -16,9 +18,20 @@ export default function Pipeline() {
   const [viewMode, setViewMode]     = useState(() => localStorage.getItem('tuesday-view-mode') || 'card')
   const [selectedJob, setSelectedJob] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
-  const isDesktop = useIsDesktop()
-  const userName  = getUserName()
+  const isDesktop  = useIsDesktop()
+  const showToast  = useToast()
+  const userName   = getUserName()
   const initials  = userName ? userName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
+  const location  = useLocation()
+  const didOpen   = useRef(false)
+
+  // Auto-open a job when navigated here from another page
+  useEffect(() => {
+    if (!loading && location.state?.openJobId && !didOpen.current) {
+      const job = jobs.find(j => j.id === location.state.openJobId)
+      if (job) { didOpen.current = true; openDrawer(job) }
+    }
+  }, [jobs, loading])
 
   const setView = mode => { setViewMode(mode); localStorage.setItem('tuesday-view-mode', mode) }
 
@@ -40,13 +53,18 @@ export default function Pipeline() {
   const closeDrawer = () => { setSelectedJob(null);  setIsCreating(false) }
 
   const handleSave = async (data) => {
-    if (data.id) {
-      await updateJob(data)
-      setSelectedJob(data)
-    } else {
-      const created = await createJob(data)
-      setIsCreating(false)
-      setSelectedJob(created)
+    try {
+      if (data.id) {
+        const fresh = await updateJob(data)
+        setSelectedJob(fresh)
+      } else {
+        const created = await createJob(data)
+        setIsCreating(false)
+        setSelectedJob(created)
+      }
+      showToast(data.id ? 'Job saved' : 'Job created')
+    } catch {
+      showToast('Failed to save job', 'error')
     }
   }
 
@@ -136,10 +154,16 @@ export default function Pipeline() {
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Jobs</div>
             </div>
             <div className="text-center">
-              <div className="text-base font-bold text-gray-900 dark:text-white">
-                {STATUS_ORDER.filter(s => s !== 'complete' && s !== 'lost').filter(s => filtered.some(j => j.status === s)).length}
+              <div className="text-base font-bold text-amber-600 dark:text-amber-400">
+                {filtered.filter(j => j.status === 'enquiry').length}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Active Statuses</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Enquiries</div>
+            </div>
+            <div className="text-center">
+              <div className="text-base font-bold text-teal-600 dark:text-teal-400">
+                {filtered.filter(j => j.status === 'installed').length}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Installed</div>
             </div>
           </div>
         </div>

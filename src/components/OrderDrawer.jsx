@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CommentsSection from './CommentsSection'
 
 const inputCls = "w-full px-3 py-2.5 bg-white/50 dark:bg-white/8 border border-white/50 dark:border-white/15 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
@@ -38,7 +39,8 @@ const BLANK = {
 }
 
 export default function OrderDrawer({ order, onClose, onSave, onDelete, isDesktop }) {
-  const isNew = !order?.id
+  const isNew    = !order?.id
+  const navigate = useNavigate()
   const [form, setForm]     = useState(order || BLANK)
   const [saving, setSaving] = useState(false)
   const [open, setOpen]     = useState(false)
@@ -117,7 +119,18 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
           </div>
         )}
 
-        <SectionTitle>References</SectionTitle>
+        <div className="flex items-center justify-between">
+          <SectionTitle>References</SectionTitle>
+          {form.quoteId && (
+            <button
+              type="button"
+              onClick={() => navigate('/quotes', { state: { openQuoteId: form.quoteId } })}
+              className="text-xs font-semibold text-green-700 dark:text-green-400 hover:underline flex-shrink-0 ml-3"
+            >
+              View Quote →
+            </button>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>

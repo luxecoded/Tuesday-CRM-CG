@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
+import { ToastProvider } from './context/ToastContext'
 import PasswordGate, { isUnlocked } from './components/PasswordGate'
 import Layout from './components/Layout'
 import Pipeline from './pages/Pipeline'
@@ -20,6 +21,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Layout>
           <Routes>
@@ -29,6 +31,7 @@ export default function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
+      </ToastProvider>
     </ThemeProvider>
   )
 }

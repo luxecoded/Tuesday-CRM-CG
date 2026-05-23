@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { STATUS_ORDER, STATUS_LABELS, STATUS_COLORS } from '../hooks/useJobs'
 import CommentsSection from './CommentsSection'
@@ -16,19 +17,66 @@ const STATUS_BADGE = {
 const inputCls = "w-full px-3 py-2.5 bg-white/50 dark:bg-white/8 border border-white/50 dark:border-white/15 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-green-500/60 dark:focus:border-green-500/50 transition-colors"
 
 const BLANK = { title: '', status: 'enquiry', customerId: '', customerName: '', addressId: '', addressLine1: '', quoteVisit: '' }
+const BLANK_CUSTOMER = { fullName: '', phone: '', email: '' }
+
+const QUOTE_STATUS_BADGE = {
+  draft:    'bg-gray-400/20 text-gray-500 dark:text-gray-400',
+  sent:     'bg-amber-400/20 text-amber-700 dark:text-amber-300',
+  accepted: 'bg-green-400/20 text-green-700 dark:text-green-400',
+  declined: 'bg-red-400/20 text-red-600 dark:text-red-400',
+}
+
+function fmtGBP(val) {
+  if (!val && val !== 0) return ''
+  return `£${Number(val).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+}
 
 export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, customers = [] }) {
-  const isNew = !job?.id
+  const isNew    = !job?.id
+  const navigate = useNavigate()
   const [form, setForm]   = useState(job || BLANK)
   const [saving, setSaving] = useState(false)
   const [open, setOpen]   = useState(false)
   const [addressText, setAddressText] = useState(job?.addressLine1 || '')
+  const [newCust, setNewCust] = useState(null)
+  const [newCustError, setNewCustError] = useState('')
+  const [custEdit, setCustEdit] = useState(null)
+  const origCust = useRef(null)
+  const [linkedQuotes, setLinkedQuotes] = useState([])
+  const [linkedOrders, setLinkedOrders] = useState([])
 
   useEffect(() => {
     const base = job || BLANK
     setForm(base)
     setAddressText(base.addressLine1 || '')
   }, [job])
+
+  // Fetch linked quotes and orders whenever the job ID is available
+  useEffect(() => {
+    if (!form.id) { setLinkedQuotes([]); setLinkedOrders([]); return }
+    Promise.all([
+      supabase.from('quotes').select('id, ewt_quote_ref, status, total').eq('job_id', form.id).order('created_at'),
+      supabase.from('orders').select('id, ewt_job_ref, total').eq('job_id', form.id).order('created_at'),
+    ]).then(([q, o]) => {
+      setLinkedQuotes(q.data || [])
+      setLinkedOrders(o.data || [])
+    })
+  }, [form.id])
+
+  // Populate customer detail fields when customerId changes
+  useEffect(() => {
+    if (form.customerId && newCust === null) {
+      const c = customers.find(x => x.id === form.customerId)
+      if (c) {
+        const details = { fullName: c.fullName || '', phone: c.phone || '', email: c.email || '', notes: c.notes || '' }
+        setCustEdit(details)
+        origCust.current = details
+      }
+    } else if (!form.customerId) {
+      setCustEdit(null)
+      origCust.current = null
+    }
+  }, [form.customerId])
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(true))
@@ -45,15 +93,34 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
   const handleSave = async () => {
     setSaving(true)
     try {
-      let addressId = form.addressId
+      let customerId   = form.customerId
+      let customerName = form.customerName
+      let addressId    = form.addressId
+
+      // Create new customer inline if the sub-form is open
+      if (newCust !== null) {
+        if (!newCust.fullName.trim()) {
+          setNewCustError('Full name is required')
+          setSaving(false)
+          return
+        }
+        setNewCustError('')
+        const { data: created } = await supabase
+          .from('customers')
+          .insert({ full_name: newCust.fullName.trim(), phone: newCust.phone.trim() || null, email: newCust.email.trim() || null })
+          .select()
+          .single()
+        customerId   = created.id
+        customerName = created.full_name
+      }
 
       // Resolve address: find or create if text changed
-      if (form.customerId && addressText.trim()) {
-        if (addressText.trim() !== form.addressLine1) {
+      if (customerId && addressText.trim()) {
+        if (addressText.trim() !== form.addressLine1 || !addressId) {
           const { data: existing } = await supabase
             .from('addresses')
             .select('id')
-            .eq('customer_id', form.customerId)
+            .eq('customer_id', customerId)
             .ilike('line1', addressText.trim())
             .maybeSingle()
 
@@ -62,7 +129,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           } else {
             const { data: created } = await supabase
               .from('addresses')
-              .insert({ customer_id: form.customerId, line1: addressText.trim() })
+              .insert({ customer_id: customerId, line1: addressText.trim() })
               .select()
               .single()
             addressId = created?.id || addressId
@@ -70,7 +137,25 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
         }
       }
 
-      await onSave({ ...form, addressId, addressLine1: addressText.trim() })
+      // Save customer detail edits if anything changed
+      if (customerId && custEdit && origCust.current) {
+        const changed =
+          custEdit.fullName !== origCust.current.fullName ||
+          custEdit.phone    !== origCust.current.phone    ||
+          custEdit.email    !== origCust.current.email    ||
+          custEdit.notes    !== origCust.current.notes
+        if (changed) {
+          await supabase.from('customers').update({
+            full_name: custEdit.fullName || null,
+            phone:     custEdit.phone    || null,
+            email:     custEdit.email    || null,
+            notes:     custEdit.notes    || null,
+          }).eq('id', customerId)
+          customerName = custEdit.fullName || customerName
+        }
+      }
+
+      await onSave({ ...form, customerId, customerName, addressId, addressLine1: addressText.trim() })
     } finally {
       setSaving(false)
     }
@@ -124,22 +209,109 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Customer</label>
-          <select
-            value={form.customerId || ''}
-            onChange={e => {
-              const id = e.target.value
-              const c  = customers.find(x => x.id === id)
-              set('customerId', id)
-              set('customerName', c ? c.fullName : '')
-            }}
-            className={inputCls}
-          >
-            <option value="">— None —</option>
-            {customers.map(c => (
-              <option key={c.id} value={c.id}>{c.fullName}</option>
-            ))}
-          </select>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Customer</label>
+            <button
+              type="button"
+              onClick={() => { setNewCust(prev => prev === null ? BLANK_CUSTOMER : null); setNewCustError('') }}
+              className="text-xs font-semibold text-green-700 dark:text-green-400 hover:underline"
+            >
+              {newCust !== null ? '← Select existing' : '+ New customer'}
+            </button>
+          </div>
+
+          {newCust === null && custEdit !== null && (
+            <div className="mt-2 space-y-2 p-3 rounded-lg bg-white/30 dark:bg-white/5 border border-white/40 dark:border-white/10">
+              <div>
+                <label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={custEdit.fullName}
+                  onChange={e => setCustEdit(p => ({ ...p, fullName: e.target.value }))}
+                  placeholder="Full name"
+                  className={inputCls}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={custEdit.phone}
+                    onChange={e => setCustEdit(p => ({ ...p, phone: e.target.value }))}
+                    placeholder="07700 000000"
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={custEdit.email}
+                    onChange={e => setCustEdit(p => ({ ...p, email: e.target.value }))}
+                    placeholder="name@example.com"
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Notes</label>
+                <textarea
+                  value={custEdit.notes}
+                  onChange={e => setCustEdit(p => ({ ...p, notes: e.target.value }))}
+                  placeholder="Customer notes…"
+                  rows={2}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+            </div>
+          )}
+
+          {newCust !== null ? (
+            <div className="space-y-2 p-3 rounded-lg bg-white/40 dark:bg-white/8 border border-white/50 dark:border-white/15">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Full name *"
+                  value={newCust.fullName}
+                  onChange={e => { setNewCust(p => ({ ...p, fullName: e.target.value })); setNewCustError('') }}
+                  className={`${inputCls} ${newCustError ? 'border-red-400/60 dark:border-red-400/50' : ''}`}
+                  autoFocus
+                />
+                {newCustError && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{newCustError}</p>}
+              </div>
+              <input
+                type="tel"
+                placeholder="Phone"
+                value={newCust.phone}
+                onChange={e => setNewCust(p => ({ ...p, phone: e.target.value }))}
+                className={inputCls}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={newCust.email}
+                onChange={e => setNewCust(p => ({ ...p, email: e.target.value }))}
+                className={inputCls}
+              />
+            </div>
+          ) : (
+            <select
+              value={form.customerId || ''}
+              onChange={e => {
+                const id = e.target.value
+                const c  = customers.find(x => x.id === id)
+                set('customerId', id)
+                set('customerName', c ? c.fullName : '')
+              }}
+              className={inputCls}
+            >
+              <option value="">— None —</option>
+              {customers.map(c => (
+                <option key={c.id} value={c.id}>{c.fullName}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div>
@@ -157,6 +329,68 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Quote Visit</label>
           <input type="date" value={form.quoteVisit || ''} onChange={e => set('quoteVisit', e.target.value)} className={inputCls} />
         </div>
+
+        {!isNew && (
+          <>
+            <div className="border-t border-white/20 dark:border-white/8" />
+
+            {/* Linked quotes */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Quotes</span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/quotes', { state: { newQuoteForJobId: form.id } })}
+                  className="text-xs font-semibold text-green-700 dark:text-green-400 hover:underline"
+                >
+                  + New Quote
+                </button>
+              </div>
+              {linkedQuotes.length === 0 ? (
+                <p className="text-xs text-gray-400 dark:text-gray-500 italic">No quotes yet</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {linkedQuotes.map(q => (
+                    <button
+                      key={q.id}
+                      type="button"
+                      onClick={() => navigate('/quotes', { state: { openQuoteId: q.id } })}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 border border-white/30 dark:border-white/10 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${QUOTE_STATUS_BADGE[q.status] || ''}`}>
+                          {q.status}
+                        </span>
+                        <span className="text-xs text-gray-700 dark:text-gray-300 truncate">{q.ewt_quote_ref || 'No ref'}</span>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex-shrink-0 ml-2">{fmtGBP(q.total)}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Linked orders */}
+            {linkedOrders.length > 0 && (
+              <div>
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-2">Orders</span>
+                <div className="space-y-1.5">
+                  {linkedOrders.map(o => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onClick={() => navigate('/orders', { state: { openOrderId: o.id } })}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 border border-white/30 dark:border-white/10 transition-colors text-left"
+                    >
+                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate">{o.ewt_job_ref || 'No ref'}</span>
+                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex-shrink-0 ml-2">{fmtGBP(o.total)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         <div className="border-t border-white/20 dark:border-white/8" />
 

@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useToast } from '../context/ToastContext'
 import { useOrders } from '../hooks/useOrders'
 import OrderDrawer from '../components/OrderDrawer'
 import ThemeToggle from '../components/ThemeToggle'
@@ -37,9 +39,19 @@ export default function Orders() {
   const { orders, loading, error, updateOrder, deleteOrder } = useOrders()
   const { theme, setTheme } = useThemeContext()
   const isDesktop = useIsDesktop()
+  const showToast = useToast()
 
   const [search, setSearch]           = useState('')
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const location = useLocation()
+  const didOpen  = useRef(false)
+
+  useEffect(() => {
+    if (!loading && location.state?.openOrderId && !didOpen.current) {
+      const o = orders.find(x => x.id === location.state.openOrderId)
+      if (o) { didOpen.current = true; openDrawer(o) }
+    }
+  }, [orders, loading])
 
   const filtered = orders.filter(o => {
     const term = search.toLowerCase()
@@ -57,8 +69,13 @@ export default function Orders() {
   const closeDrawer = ()    => setSelectedOrder(null)
 
   const handleSave = async (data) => {
-    await updateOrder(data)
-    setSelectedOrder(data)
+    try {
+      await updateOrder(data)
+      setSelectedOrder(data)
+      showToast('Order saved')
+    } catch {
+      showToast('Failed to save order', 'error')
+    }
   }
 
   if (loading) return (
