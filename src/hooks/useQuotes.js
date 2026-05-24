@@ -96,8 +96,10 @@ export function useQuotes() {
     fetchQuotes()
     const channel = supabase
       .channel('public:quotes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, fetchQuotes)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_items' }, fetchQuotes)
+      .on('postgres_changes', { event: '*',    schema: 'public', table: 'quotes' },      fetchQuotes)
+      .on('postgres_changes', { event: '*',    schema: 'public', table: 'quote_items' }, fetchQuotes)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'jobs' },     fetchQuotes)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'customers' }, fetchQuotes)
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [])

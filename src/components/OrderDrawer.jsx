@@ -44,8 +44,9 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
   const [form, setForm]     = useState(order || BLANK)
   const [saving, setSaving] = useState(false)
   const [open, setOpen]     = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
 
-  useEffect(() => { setForm(order || BLANK) }, [order])
+  useEffect(() => { setForm(order || BLANK); setIsDirty(false) }, [order])
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(true))
@@ -53,17 +54,19 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
   }, [])
 
   const handleClose = useCallback(() => {
+    if (isDirty && !window.confirm('You have unsaved changes. Discard them?')) return
     setOpen(false)
     setTimeout(onClose, 300)
-  }, [onClose])
+  }, [onClose, isDirty])
 
-  const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
+  const set = (field, val) => { setForm(prev => ({ ...prev, [field]: val })); setIsDirty(true) }
 
   const liveTotal = (form.materialsCost || 0) + (form.installationCharge || 0) + (form.supplierCharge || 0)
   const liveVat   = Math.round(liveTotal * 0.2 * 100) / 100
   const liveNett  = Math.round(liveTotal * 0.8 * 100) / 100
 
   const handleSave = async () => {
+    setIsDirty(false)
     setSaving(true)
     try { await onSave(form) } finally { setSaving(false) }
   }

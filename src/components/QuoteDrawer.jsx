@@ -43,6 +43,7 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   const [form, setForm]         = useState({ ...BLANK, ...(quote || {}) })
   const [saving, setSaving]     = useState(false)
   const [open, setOpen]         = useState(false)
+  const [isDirty, setIsDirty]   = useState(false)
   const [expanded, setExpanded] = useState({})
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
     const exp = {}
     ;(base.items || []).forEach(i => { exp[i.id] = true })
     setExpanded(exp)
+    setIsDirty(false)
   }, [quote])
 
   useEffect(() => {
@@ -59,20 +61,23 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   }, [])
 
   const handleClose = useCallback(() => {
+    if (isDirty && !window.confirm('You have unsaved changes. Discard them?')) return
     setOpen(false)
     setTimeout(onClose, 300)
-  }, [onClose])
+  }, [onClose, isDirty])
 
-  const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
+  const set = (field, val) => { setForm(prev => ({ ...prev, [field]: val })); setIsDirty(true) }
 
   const addItem = () => {
     const item = newItem()
     setForm(prev => ({ ...prev, items: [...prev.items, item] }))
     setExpanded(prev => ({ ...prev, [item.id]: true }))
+    setIsDirty(true)
   }
 
   const removeItem = (id) => {
     setForm(prev => ({ ...prev, items: prev.items.filter(i => i.id !== id) }))
+    setIsDirty(true)
   }
 
   const setItem = (id, field, val) => {
@@ -80,6 +85,7 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
       ...prev,
       items: prev.items.map(i => i.id === id ? { ...i, [field]: val } : i),
     }))
+    setIsDirty(true)
   }
 
   const toggleExpanded = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }))
@@ -90,6 +96,7 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   const linkedJob = jobs.find(j => j.id === form.jobId)
 
   const handleSave = async () => {
+    setIsDirty(false)
     setSaving(true)
     try { await onSave(form) } finally { setSaving(false) }
   }

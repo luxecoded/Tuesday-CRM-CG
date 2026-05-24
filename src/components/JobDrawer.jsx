@@ -39,6 +39,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
   const [form, setForm]       = useState(job || BLANK)
   const [saving, setSaving]   = useState(false)
   const [open, setOpen]       = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
   const [addressText, setAddressText] = useState(job?.addressLine1 || '')
   const [newCust, setNewCust] = useState(null)
   const [newCustError, setNewCustError] = useState('')
@@ -51,6 +52,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
     const base = job || BLANK
     setForm(base)
     setAddressText(base.addressLine1 || '')
+    setIsDirty(false)
   }, [job])
 
   useEffect(() => {
@@ -84,13 +86,15 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
   }, [])
 
   const handleClose = useCallback(() => {
+    if (isDirty && !window.confirm('You have unsaved changes. Discard them?')) return
     setOpen(false)
     setTimeout(onClose, 300)
-  }, [onClose])
+  }, [onClose, isDirty])
 
-  const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
+  const set = (field, val) => { setForm(prev => ({ ...prev, [field]: val })); setIsDirty(true) }
 
   const handleSave = async () => {
+    setIsDirty(false)
     setSaving(true)
     try {
       let customerId   = form.customerId

@@ -34,7 +34,11 @@ export default function Pipeline() {
 
   const setView = mode => { setViewMode(mode); localStorage.setItem('tuesday-view-mode', mode) }
 
-  const visibleJobs = jobs.filter(j => j.status !== 'lost' || statusFilter === 'lost')
+  const visibleJobs = jobs.filter(j => {
+    if (j.status === 'lost')     return statusFilter === 'lost'
+    if (j.status === 'complete') return statusFilter === 'complete'
+    return true
+  })
   const filtered = visibleJobs.filter(j => {
     const matchStatus = statusFilter === 'All' || j.status === statusFilter
     const q = search.toLowerCase()
@@ -105,7 +109,9 @@ export default function Pipeline() {
           </div>
           <div className="hidden lg:block">
             <h1 className="text-lg font-bold text-ink">Pipeline</h1>
-            <p className="text-xs text-ink-muted">{filtered.length} active jobs</p>
+            <p className="text-xs text-ink-muted">
+              {filtered.length} {statusFilter === 'lost' ? 'lost' : statusFilter === 'complete' ? 'complete' : statusFilter !== 'All' ? STATUS_LABELS[statusFilter]?.toLowerCase() : 'active'} job{filtered.length !== 1 ? 's' : ''}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} />
