@@ -104,11 +104,12 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           return
         }
         setNewCustError('')
-        const { data: created } = await supabase
+        const { data: created, error: custError } = await supabase
           .from('customers')
           .insert({ full_name: newCust.fullName.trim(), phone: newCust.phone.trim() || null, email: newCust.email.trim() || null })
           .select()
           .single()
+        if (custError) throw custError
         customerId   = created.id
         customerName = created.full_name
       }
