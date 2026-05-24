@@ -130,12 +130,13 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           if (existing) {
             addressId = existing.id
           } else {
-            const { data: created } = await supabase
+            const { data: created, error: addrError } = await supabase
               .from('addresses')
               .insert({ customer_id: customerId, line1: addressText.trim() })
               .select()
               .single()
-            addressId = created?.id || addressId
+            if (addrError) throw addrError
+            addressId = created.id
           }
         }
       }
@@ -229,7 +230,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
                 <input
                   type="text"
                   value={custEdit.fullName}
-                  onChange={e => setCustEdit(p => ({ ...p, fullName: e.target.value }))}
+                  onChange={e => { setCustEdit(p => ({ ...p, fullName: e.target.value })); setIsDirty(true) }}
                   placeholder="Full name"
                   className={inputCls}
                 />
@@ -240,7 +241,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
                   <input
                     type="tel"
                     value={custEdit.phone}
-                    onChange={e => setCustEdit(p => ({ ...p, phone: e.target.value }))}
+                    onChange={e => { setCustEdit(p => ({ ...p, phone: e.target.value })); setIsDirty(true) }}
                     placeholder="07700 000000"
                     className={inputCls}
                   />
@@ -250,7 +251,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
                   <input
                     type="email"
                     value={custEdit.email}
-                    onChange={e => setCustEdit(p => ({ ...p, email: e.target.value }))}
+                    onChange={e => { setCustEdit(p => ({ ...p, email: e.target.value })); setIsDirty(true) }}
                     placeholder="name@example.com"
                     className={inputCls}
                   />
@@ -260,7 +261,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
                 <label className="block text-[10px] font-semibold text-ink-faint uppercase tracking-wide mb-1">Notes</label>
                 <textarea
                   value={custEdit.notes}
-                  onChange={e => setCustEdit(p => ({ ...p, notes: e.target.value }))}
+                  onChange={e => { setCustEdit(p => ({ ...p, notes: e.target.value })); setIsDirty(true) }}
                   placeholder="Customer notes…"
                   rows={2}
                   className={`${inputCls} resize-none`}
@@ -321,7 +322,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           <input
             type="text"
             value={addressText}
-            onChange={e => setAddressText(e.target.value)}
+            onChange={e => { setAddressText(e.target.value); setIsDirty(true) }}
             placeholder="Installation address"
             className={inputCls}
           />

@@ -157,7 +157,8 @@ export function useQuotes() {
   }
 
   async function fetchOne(id) {
-    const { data } = await supabase.from('quotes').select(SELECT).eq('id', id).single()
+    const { data, error } = await supabase.from('quotes').select(SELECT).eq('id', id).single()
+    if (error) { fetchQuotes(); throw error }
     return data ? fromCloud(data) : null
   }
 
