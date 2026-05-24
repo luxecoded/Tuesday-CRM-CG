@@ -18,7 +18,7 @@ const STATUS_BADGE   = {
 }
 
 function fmt(val) {
-  if (!val) return '—'
+  if (!val && val !== 0) return '—'
   return `£${Number(val).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
 }
 
