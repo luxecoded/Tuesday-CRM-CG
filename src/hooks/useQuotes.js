@@ -82,9 +82,9 @@ function itemToCloud(item, quoteId) {
 }
 
 function calcTotals(items) {
-  const ewtValue      = items.reduce((s, i) => s + (i.salePrice    || 0) * (i.quantity || 1), 0)
-  const supplierValue = items.reduce((s, i) => s + (i.supplierCost || 0) * (i.quantity || 1), 0)
-  return { ewtValue, supplierValue, total: ewtValue + supplierValue }
+  const ewt_value      = items.reduce((s, i) => s + (i.salePrice    || 0) * (i.quantity || 1), 0)
+  const supplier_value = items.reduce((s, i) => s + (i.supplierCost || 0) * (i.quantity || 1), 0)
+  return { ewt_value, supplier_value, total: ewt_value + supplier_value }
 }
 
 export function useQuotes() {

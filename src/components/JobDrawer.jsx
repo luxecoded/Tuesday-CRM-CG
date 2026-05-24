@@ -23,7 +23,7 @@ const QUOTE_STATUS_BADGE = {
 
 const QUOTE_STATUS_LABEL = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' }
 
-const inputCls = "w-full px-3 py-2.5 bg-surface-input border border-edge-input rounded-lg text-sm text-ink outline-none focus:border-green-500/55 transition-colors"
+const inputCls = "w-full px-3 py-2.5 bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-lg text-sm text-ink outline-none focus:border-green-500/60 focus:ring-1 focus:ring-green-500/20 transition-colors"
 
 const BLANK = { title: '', status: 'enquiry', customerId: '', customerName: '', addressId: '', addressLine1: '', quoteVisit: '' }
 const BLANK_CUSTOMER = { fullName: '', phone: '', email: '' }
@@ -218,7 +218,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           </div>
 
           {newCust === null && custEdit !== null && (
-            <div className="mt-2 space-y-2 p-3 rounded-lg bg-surface-chip border border-edge-chip">
+            <div className="mt-2 space-y-2 p-3 rounded-lg bg-white/60 dark:bg-white/8 border border-gray-200 dark:border-white/15">
               <div>
                 <label className="block text-[10px] font-semibold text-ink-faint uppercase tracking-wide mb-1">Full Name</label>
                 <input
@@ -265,7 +265,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           )}
 
           {newCust !== null ? (
-            <div className="space-y-2 p-3 rounded-lg bg-surface-input border border-edge-input">
+            <div className="space-y-2 p-3 rounded-lg bg-white/60 dark:bg-white/8 border border-gray-200 dark:border-white/15">
               <div>
                 <input
                   type="text"

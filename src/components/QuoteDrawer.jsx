@@ -11,7 +11,7 @@ const STATUS_STYLES  = {
   declined: 'bg-red-400/20 text-red-700 dark:text-red-300',
 }
 
-const inputCls = "w-full px-3 py-2.5 bg-surface-input border border-edge-input rounded-lg text-sm text-ink outline-none focus:border-green-500/55 transition-colors"
+const inputCls = "w-full px-3 py-2.5 bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-lg text-sm text-ink outline-none focus:border-green-500/60 focus:ring-1 focus:ring-green-500/20 transition-colors"
 
 function fmt(val) {
   if (!val && val !== 0) return '—'

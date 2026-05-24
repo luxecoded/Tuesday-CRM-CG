@@ -109,10 +109,6 @@ export default function Pipeline() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} />
-            <button onClick={openNew}
-              className="px-3 py-1.5 bg-green-700 hover:bg-green-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm shadow-green-700/25">
-              + New Job
-            </button>
             <div className="flex bg-surface-toggle rounded-lg p-0.5">
               <button onClick={() => setView('card')}
                 className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors
@@ -266,6 +262,17 @@ export default function Pipeline() {
       </div>
 
       {(selectedJob || isCreating) && <JobDrawer {...drawerProps} />}
+
+      {/* FAB — New Job */}
+      <button onClick={openNew}
+        className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-40 group flex items-center gap-3 pointer-events-auto">
+        <span className="opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 bg-gray-900/90 dark:bg-gray-800/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap backdrop-blur-sm">
+          New Job
+        </span>
+        <div className="w-14 h-14 rounded-full bg-green-700 hover:bg-green-600 active:scale-95 flex items-center justify-center shadow-lg shadow-green-700/40 transition-all duration-150 hover:scale-105">
+          <span className="text-white text-3xl font-extralight leading-none mt-[-2px]">+</span>
+        </div>
+      </button>
     </div>
   )
 }
