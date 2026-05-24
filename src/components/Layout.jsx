@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { lockApp, getUserName } from './PasswordGate'
 
 function HomeIcon({ className }) {
@@ -31,9 +32,11 @@ function OrdersIcon({ className }) {
 
 const navItems = [
   { to: '/',       Icon: HomeIcon,   label: 'Dashboard' },
-  { to: '/quotes', Icon: QuotesIcon, label: 'Quotes' },
-  { to: '/orders', Icon: OrdersIcon, label: 'Orders' },
+  { to: '/quotes', Icon: QuotesIcon, label: 'Quotes'    },
+  { to: '/orders', Icon: OrdersIcon, label: 'Orders'    },
 ]
+
+const spring = { type: 'spring', bounce: 0.15, duration: 0.4 }
 
 export default function Layout({ children }) {
   const userName = getUserName()
@@ -44,33 +47,36 @@ export default function Layout({ children }) {
       {/* Sidebar — desktop only */}
       <aside className="hidden lg:flex flex-col w-56 bg-surface-bar backdrop-blur-2xl border-r border-edge flex-shrink-0">
         <div className="flex items-center gap-3 px-5 border-b border-edge-dim py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-sm">E</span>
-            </div>
-            <div>
-              <div className="font-bold text-ink text-sm">Elite Windows</div>
-              {userName && <div className="text-xs text-ink-muted">{userName}</div>}
-            </div>
+          <div className="w-8 h-8 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-bold text-sm">E</span>
+          </div>
+          <div>
+            <div className="font-bold text-ink text-sm">Elite Windows</div>
+            {userName && <div className="text-xs text-ink-muted">{userName}</div>}
           </div>
         </div>
 
         <nav className="flex-1 p-3 space-y-0.5">
           {navItems.map(({ to, Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors border
-                ${isActive
-                  ? 'bg-green-600/15 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-transparent'
-                  : 'text-ink-soft border-transparent hover:border-green-600/50 dark:hover:border-green-500/50 hover:text-green-800 dark:hover:text-green-400'
-                }`
-              }
-            >
-              <Icon className="w-4 h-4" />
-              {label}
+            <NavLink key={to} to={to} end={to === '/'}>
+              {({ isActive }) => (
+                <span className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                  ${isActive
+                    ? 'text-green-700 dark:text-green-400'
+                    : 'text-ink-soft hover:text-green-800 dark:hover:text-green-400'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="sidebar-active"
+                      className="absolute inset-0 rounded-lg bg-green-600/15 dark:bg-green-500/20"
+                      transition={spring}
+                    />
+                  )}
+                  <Icon className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">{label}</span>
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -97,20 +103,25 @@ export default function Layout({ children }) {
         border border-edge-nav
         px-2 py-1.5 gap-0.5 z-40">
         {navItems.map(({ to, Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-5 py-2 rounded-full text-xs font-medium transition-all duration-200
-              ${isActive
-                ? 'bg-green-600/15 dark:bg-green-500/20 text-green-700 dark:text-green-400'
-                : 'text-ink-muted hover:text-ink-hover hover:bg-surface-hover'
-              }`
-            }
-          >
-            <Icon className="w-5 h-5" />
-            <span className="text-[10px] font-semibold">{label}</span>
+          <NavLink key={to} to={to} end={to === '/'}>
+            {({ isActive }) => (
+              <span className={`relative flex flex-col items-center gap-0.5 px-5 py-2 rounded-full text-xs font-medium transition-colors
+                ${isActive
+                  ? 'text-green-700 dark:text-green-400'
+                  : 'text-ink-muted hover:text-ink-hover'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="mobile-active"
+                    className="absolute inset-0 rounded-full bg-green-600/15 dark:bg-green-500/20"
+                    transition={spring}
+                  />
+                )}
+                <Icon className="w-5 h-5 relative z-10" />
+                <span className="text-[10px] font-semibold relative z-10">{label}</span>
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
