@@ -62,6 +62,15 @@
   --gate-card:   #ffffff;
   --gate-input:  #f9fafb;
   --gate-border: #e5e7eb;
+
+  /* Modals — solid, no glass */
+  --modal-bg:          #ffffff;
+  --modal-raised:      #f8fafc;
+  --modal-input:       #f1f5f9;
+  --modal-border:      #e2e8f0;
+  --modal-chip:        #f1f5f9;
+  --modal-close:       #f1f5f9;
+  --modal-close-hover: #e2e8f0;
 }
 
 /* ─── Dark mode overrides ─────────────────────────────────────── */
@@ -117,6 +126,15 @@
   --gate-card:   #1f2937;
   --gate-input:  #374151;
   --gate-border: #374151;
+
+  /* Modals — solid, no glass */
+  --modal-bg:          #1c1c28;
+  --modal-raised:      #14141e;
+  --modal-input:       #24243a;
+  --modal-border:      #2d2d45;
+  --modal-chip:        #24243a;
+  --modal-close:       #24243a;
+  --modal-close-hover: #30304a;
 }
 
 /* ─── Register as Tailwind utilities (inline = utilities reference the var directly) */
@@ -169,6 +187,14 @@
   --color-gate-card:   var(--gate-card);
   --color-gate-input:  var(--gate-input);
   --color-gate-border: var(--gate-border);
+
+  --color-modal-bg:          var(--modal-bg);
+  --color-modal-raised:      var(--modal-raised);
+  --color-modal-input:       var(--modal-input);
+  --color-modal-border:      var(--modal-border);
+  --color-modal-chip:        var(--modal-chip);
+  --color-modal-close:       var(--modal-close);
+  --color-modal-close-hover: var(--modal-close-hover);
 }
 
 /* ─── Global base ─────────────────────────────────────────────── */

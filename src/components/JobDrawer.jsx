@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { STATUS_ORDER, STATUS_LABELS, STATUS_COLORS } from '../hooks/useJobs'
 import CommentsSection from './CommentsSection'
+import ConfirmModal from './ConfirmModal'
 
 const STATUS_BADGE = {
   enquiry:   'bg-purple-400/20 text-purple-700 dark:text-purple-300',
@@ -38,6 +39,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
   const navigate = useNavigate()
   const [form, setForm]       = useState(job || BLANK)
   const [saving, setSaving]   = useState(false)
+  const [confirm, setConfirm] = useState(null)
   const [open, setOpen]       = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const [addressText, setAddressText] = useState(job?.addressLine1 || '')
@@ -86,7 +88,16 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
   }, [])
 
   const handleClose = useCallback(() => {
-    if (isDirty && !window.confirm('You have unsaved changes. Discard them?')) return
+    if (isDirty) {
+      setConfirm({
+        title: 'Unsaved changes',
+        message: 'You have unsaved changes. Discard them?',
+        confirmLabel: 'Discard',
+        danger: false,
+        onConfirm: () => { setConfirm(null); setOpen(false); setTimeout(onClose, 300) },
+      })
+      return
+    }
     setOpen(false)
     setTimeout(onClose, 300)
   }, [onClose, isDirty])
@@ -164,11 +175,19 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
     }
   }
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!onDelete || !form.id) return
-    if (!window.confirm('Delete this job?')) return
-    setSaving(true)
-    try { await onDelete(form.id); onClose() } finally { setSaving(false) }
+    setConfirm({
+      title: 'Delete job',
+      message: 'Are you sure you want to delete this job? This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+      onConfirm: async () => {
+        setConfirm(null)
+        setSaving(true)
+        try { await onDelete(form.id); onClose() } finally { setSaving(false) }
+      },
+    })
   }
 
   const color = STATUS_COLORS[form.status] || '#6b7280'
@@ -415,6 +434,7 @@ export default function JobDrawer({ job, onClose, onSave, onDelete, isDesktop, c
           )}
         </div>
       </div>
+      {confirm && <ConfirmModal {...confirm} onCancel={() => setConfirm(null)} />}
     </>
   )
 

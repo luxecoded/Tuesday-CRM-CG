@@ -6,7 +6,7 @@ const SELECT = `
   jobs (
     title,
     customer_id,
-    customers ( full_name ),
+    customers ( full_name, email ),
     address_id,
     addresses ( line1, city )
   ),
@@ -33,6 +33,7 @@ function fromCloud(d) {
     jobId:             d.job_id              || '',
     jobTitle:          d.jobs?.title         || '',
     customerName:      d.jobs?.customers?.full_name || '',
+    customerEmail:     d.jobs?.customers?.email    || '',
     addressLine1:      d.jobs?.addresses?.line1     || '',
     addressCity:       d.jobs?.addresses?.city      || '',
     ewtQuoteRef:       d.ewt_quote_ref       || '',

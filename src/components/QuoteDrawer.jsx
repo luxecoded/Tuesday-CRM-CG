@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CommentsSection from './CommentsSection'
+import ConfirmModal from './ConfirmModal'
+import PdfPreviewModal from '../pdf/PdfPreviewModal.jsx'
+import { mapQuote, quoteFilename } from '../pdf/mappers/quoteMapper.js'
 
 const STATUS_OPTIONS = ['draft', 'sent', 'accepted', 'declined']
 const STATUS_LABELS  = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' }
@@ -42,6 +45,8 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   const navigate = useNavigate()
   const [form, setForm]         = useState({ ...BLANK, ...(quote || {}) })
   const [saving, setSaving]     = useState(false)
+  const [pdfPreview, setPdfPreview] = useState(null)
+  const [confirm, setConfirm]   = useState(null)
   const [open, setOpen]         = useState(false)
   const [isDirty, setIsDirty]   = useState(false)
   const [expanded, setExpanded] = useState({})
@@ -61,7 +66,16 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
   }, [])
 
   const handleClose = useCallback(() => {
-    if (isDirty && !window.confirm('You have unsaved changes. Discard them?')) return
+    if (isDirty) {
+      setConfirm({
+        title: 'Unsaved changes',
+        message: 'You have unsaved changes. Discard them?',
+        confirmLabel: 'Discard',
+        danger: false,
+        onConfirm: () => { setConfirm(null); setOpen(false); setTimeout(onClose, 300) },
+      })
+      return
+    }
     setOpen(false)
     setTimeout(onClose, 300)
   }, [onClose, isDirty])
@@ -101,11 +115,23 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
     try { await onSave(form) } finally { setSaving(false) }
   }
 
-  const handleDelete = async () => {
+  const handleOpenPdfPreview = () => {
+    setPdfPreview({ docData: mapQuote(form), filename: quoteFilename(form), defaultTo: form.customerEmail || '' })
+  }
+
+  const handleDelete = () => {
     if (!onDelete || !form.id) return
-    if (!window.confirm('Delete this quote?')) return
-    setSaving(true)
-    try { await onDelete(form.id); onClose() } finally { setSaving(false) }
+    setConfirm({
+      title: 'Delete quote',
+      message: 'Are you sure you want to delete this quote? This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+      onConfirm: async () => {
+        setConfirm(null)
+        setSaving(true)
+        try { await onDelete(form.id); onClose() } finally { setSaving(false) }
+      },
+    })
   }
 
   const content = (
@@ -344,6 +370,13 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
             {saving ? 'Saving…' : isNew ? 'Create Quote' : 'Save Changes'}
           </button>
           {!isNew && (
+            <button onClick={handleOpenPdfPreview} disabled={saving}
+              title="Preview & download PDF"
+              className="px-4 py-3 rounded-xl text-sm font-semibold bg-surface-chip hover:bg-surface-hover border border-edge-hi text-ink-soft disabled:opacity-60 transition-colors">
+              PDF
+            </button>
+          )}
+          {!isNew && (
             <button onClick={handleDelete} disabled={saving}
               className="px-4 py-3 rounded-xl text-sm font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 transition-colors">
               Delete
@@ -351,6 +384,15 @@ export default function QuoteDrawer({ quote, onClose, onSave, onDelete, isDeskto
           )}
         </div>
       </div>
+      {confirm && <ConfirmModal {...confirm} onCancel={() => setConfirm(null)} />}
+      {pdfPreview && (
+        <PdfPreviewModal
+          docData={pdfPreview.docData}
+          filename={pdfPreview.filename}
+          defaultTo={pdfPreview.defaultTo}
+          onClose={() => setPdfPreview(null)}
+        />
+      )}
     </>
   )
 

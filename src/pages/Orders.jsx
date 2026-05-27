@@ -36,13 +36,14 @@ function StatusDots({ order }) {
 }
 
 export default function Orders() {
-  const { orders, loading, error, updateOrder, deleteOrder } = useOrders()
+  const { orders, loading, error, createOrder, updateOrder, deleteOrder } = useOrders()
   const { theme, setTheme } = useThemeContext()
   const isDesktop = useIsDesktop()
   const showToast = useToast()
 
-  const [search, setSearch]             = useState('')
+  const [search, setSearch]               = useState('')
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [isCreating, setIsCreating]       = useState(false)
   const location = useLocation()
   const didOpen  = useRef(false)
 
@@ -65,16 +66,24 @@ export default function Orders() {
   const totalValue     = filtered.reduce((s, o) => s + (o.total || 0), 0)
   const signedOffCount = filtered.filter(o => o.checkedSignedOff).length
 
-  const openDrawer  = order => setSelectedOrder(order)
-  const closeDrawer = ()    => setSelectedOrder(null)
+  const openDrawer  = order => { setIsCreating(false); setSelectedOrder(order) }
+  const openNew     = ()    => { setSelectedOrder(null); setIsCreating(true) }
+  const closeDrawer = ()    => { setSelectedOrder(null); setIsCreating(false) }
 
   const handleSave = async (data) => {
     try {
-      const fresh = await updateOrder(data)
-      setSelectedOrder(fresh)
-      showToast('Order saved')
+      if (isCreating) {
+        const created = await createOrder(data)
+        setIsCreating(false)
+        setSelectedOrder(created)
+        showToast('Order created')
+      } else {
+        const fresh = await updateOrder(data)
+        setSelectedOrder(fresh)
+        showToast('Order saved')
+      }
     } catch {
-      showToast('Failed to save order', 'error')
+      showToast(isCreating ? 'Failed to create order' : 'Failed to save order', 'error')
     }
   }
 
@@ -178,15 +187,27 @@ export default function Orders() {
         </div>
       </div>
 
-      {selectedOrder && (
+      {(selectedOrder || isCreating) && (
         <OrderDrawer
-          order={selectedOrder}
+          order={isCreating ? null : selectedOrder}
           onClose={closeDrawer}
           onSave={handleSave}
-          onDelete={deleteOrder}
+          onDelete={!isCreating ? deleteOrder : undefined}
           isDesktop={isDesktop}
         />
       )}
+
+      {/* FAB — New Order */}
+      <button onClick={openNew}
+        className={`fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-40 group flex items-center gap-3 transition-all duration-300 ease-out
+          ${(selectedOrder || isCreating) ? 'translate-x-20 opacity-0 pointer-events-none' : 'translate-x-0 opacity-100 pointer-events-auto'}`}>
+        <span className="opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 bg-gray-900/90 dark:bg-gray-800/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap backdrop-blur-sm">
+          New Order
+        </span>
+        <div className="w-14 h-14 rounded-full bg-green-700 hover:bg-green-600 active:scale-95 flex items-center justify-center shadow-lg shadow-green-700/40 transition-all duration-150 hover:scale-105">
+          <span className="text-white text-3xl font-extralight leading-none mt-[-2px]">+</span>
+        </div>
+      </button>
     </div>
   )
 }

@@ -271,7 +271,8 @@ export default function Pipeline() {
 
       {/* FAB — New Job */}
       <button onClick={openNew}
-        className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-40 group flex items-center gap-3 pointer-events-auto">
+        className={`fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-40 group flex items-center gap-3 transition-all duration-300 ease-out
+          ${(selectedJob || isCreating) ? 'translate-x-20 opacity-0 pointer-events-none' : 'translate-x-0 opacity-100 pointer-events-auto'}`}>
         <span className="opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 bg-gray-900/90 dark:bg-gray-800/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap backdrop-blur-sm">
           New Job
         </span>

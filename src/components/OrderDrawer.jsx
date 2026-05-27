@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CommentsSection from './CommentsSection'
+import ConfirmModal from './ConfirmModal'
+import EmailComposeModal from '../pdf/EmailComposeModal.jsx'
 
 const inputCls = "w-full px-3 py-2.5 bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-lg text-sm text-ink outline-none focus:border-green-500/60 focus:ring-1 focus:ring-green-500/20 transition-colors"
 
@@ -42,9 +44,11 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
   const isNew    = !order?.id
   const navigate = useNavigate()
   const [form, setForm]     = useState(order || BLANK)
-  const [saving, setSaving] = useState(false)
-  const [open, setOpen]     = useState(false)
-  const [isDirty, setIsDirty] = useState(false)
+  const [saving, setSaving]     = useState(false)
+  const [confirm, setConfirm]   = useState(null)
+  const [showEmail, setShowEmail] = useState(false)
+  const [open, setOpen]         = useState(false)
+  const [isDirty, setIsDirty]   = useState(false)
 
   useEffect(() => { setForm(order || BLANK); setIsDirty(false) }, [order])
 
@@ -54,7 +58,16 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
   }, [])
 
   const handleClose = useCallback(() => {
-    if (isDirty && !window.confirm('You have unsaved changes. Discard them?')) return
+    if (isDirty) {
+      setConfirm({
+        title: 'Unsaved changes',
+        message: 'You have unsaved changes. Discard them?',
+        confirmLabel: 'Discard',
+        danger: false,
+        onConfirm: () => { setConfirm(null); setOpen(false); setTimeout(onClose, 300) },
+      })
+      return
+    }
     setOpen(false)
     setTimeout(onClose, 300)
   }, [onClose, isDirty])
@@ -71,11 +84,19 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
     try { await onSave(form) } finally { setSaving(false) }
   }
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!onDelete || !form.id) return
-    if (!window.confirm('Delete this order?')) return
-    setSaving(true)
-    try { await onDelete(form.id); onClose() } finally { setSaving(false) }
+    setConfirm({
+      title: 'Delete order',
+      message: 'Are you sure you want to delete this order? This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+      onConfirm: async () => {
+        setConfirm(null)
+        setSaving(true)
+        try { await onDelete(form.id); onClose() } finally { setSaving(false) }
+      },
+    })
   }
 
   const content = (
@@ -193,15 +214,15 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Materials (£)</label>
+              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Materials</label>
               <input type="number" value={form.materialsCost} onChange={e => set('materialsCost', parseFloat(e.target.value) || 0)} className={inputCls} />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Installation (£)</label>
+              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Installation</label>
               <input type="number" value={form.installationCharge} onChange={e => set('installationCharge', parseFloat(e.target.value) || 0)} className={inputCls} />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Supplier (£)</label>
+              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">Supplier</label>
               <input type="number" value={form.supplierCharge} onChange={e => set('supplierCharge', parseFloat(e.target.value) || 0)} className={inputCls} />
             </div>
           </div>
@@ -228,6 +249,14 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
 
         <div className="border-t border-edge-dim" />
 
+        {/* Email customer — shown once Customer Notified is checked */}
+        {form.customerNotified && !isNew && (
+          <button onClick={() => setShowEmail(true)}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold border border-edge-hi bg-surface-chip hover:bg-surface-hover text-ink-soft transition-colors">
+            ✉ Email Customer
+          </button>
+        )}
+
         {/* Actions */}
         <div className="flex gap-2 pb-1">
           <button onClick={handleSave} disabled={saving}
@@ -242,6 +271,21 @@ export default function OrderDrawer({ order, onClose, onSave, onDelete, isDeskto
           )}
         </div>
       </div>
+      {confirm && <ConfirmModal {...confirm} onCancel={() => setConfirm(null)} />}
+      {showEmail && (
+        <EmailComposeModal
+          docData={{
+            title: 'Order Confirmation',
+            infoFields: [
+              { label: 'Customer', value: form.customerName || '' },
+              { label: 'Order Ref', value: form.ewtJobRef || '' },
+            ],
+          }}
+          defaultTo={form.customerEmail || ''}
+          onClose={() => setShowEmail(false)}
+          onSent={() => setShowEmail(false)}
+        />
+      )}
     </>
   )
 
